@@ -710,9 +710,9 @@ function renderAddLogForm() {
     <div class="form-group"><label class="form-label">日付</label><input type="date" id="log-date" value="${today}"></div>
     <div class="form-group">
       <label class="form-label">ステータス</label>
-      <div class="status-select-row">
-        ${STATUS_LIST.map(s=>`<label class="status-radio-label"><input type="radio" name="log-status" value="${s}" ${s==='追記'?'checked':''} style="width:auto;margin:0"><span class="badge ${STATUS_CLS[s]}">${s}</span></label>`).join('')}
-      </div>
+      <select id="log-status" style="width:auto">
+        ${STATUS_LIST.map(s=>`<option value="${s}" ${s==='追記'?'selected':''}>${s}</option>`).join('')}
+      </select>
     </div>
     ${soilExtra}
     <div class="form-group"><label class="form-label">コメント・メモ</label>
@@ -755,7 +755,7 @@ function saveLog() {
   if (!r) return;
   const date = document.getElementById('log-date')?.value;
   const comment = document.getElementById('log-comment')?.value.trim();
-  const statusEl = document.querySelector('input[name="log-status"]:checked');
+  const statusEl = document.getElementById('log-status');
   const status = statusEl ? statusEl.value : '追記';
 
   const log = { date, status, comment, photoKeys: [...detailLogPhotoKeys] };
@@ -892,13 +892,13 @@ function handleOverlayClick(e) {
 }
 
 function statusSelectHtml(def='新規') {
-  return `<div class="status-select-row">${STATUS_LIST.map(s=>
-    `<label class="status-radio-label"><input type="radio" name="f-status" value="${s}" ${s===def?'checked':''} style="width:auto;margin:0"><span class="badge ${STATUS_CLS[s]}">${s}</span></label>`
-  ).join('')}</div>`;
+  return `<select id="f-status" style="width:auto">
+    ${STATUS_LIST.map(s=>`<option value="${s}" ${s===def?'selected':''}>${s}</option>`).join('')}
+  </select>`;
 }
 function getSelectedStatus() {
-  const el = document.querySelector('input[name="f-status"]:checked');
-  return el?el.value:'新規';
+  const el = document.getElementById('f-status');
+  return el ? el.value : '新規';
 }
 
 // ===================== 土づくりモーダル =====================
@@ -1006,70 +1006,63 @@ function deleteZone(i){if(state.zones.length<=1)return;const z=state.zones[i];st
 
 // ===================== 保存 =====================
 function saveSoil() {
-  const items = soilItems.filter(i=>i.type.trim());
-  if (!items.length) return;
-  const status = getSelectedStatus();
-  const record = {
-    zone: document.getElementById('f-zone').value,
-    date: document.getElementById('f-date').value,
-    status,
-    items: items.map(i=>({type:i.type.trim(),amount:i.amount?parseFloat(i.amount):null,unit:i.unit})),
-    comment: document.getElementById('f-comment').value.trim(),
-    photoKeys: [...pendingPhotoKeys],
-    logs: [{
-      date: document.getElementById('f-date').value,
-      status,
-      comment: document.getElementById('f-comment').value.trim(),
+  try {
+    const items = soilItems.filter(i=>i.type.trim());
+    if (!items.length) { alert('土・資材を1つ以上入力してください'); return; }
+    const zone = document.getElementById('f-zone').value;
+    const date = document.getElementById('f-date').value;
+    const status = getSelectedStatus();
+    const comment = document.getElementById('f-comment').value.trim();
+    const mappedItems = items.map(i=>({type:i.type.trim(),amount:i.amount?parseFloat(i.amount):null,unit:i.unit}));
+    const record = {
+      zone, date, status,
+      items: mappedItems,
+      comment,
       photoKeys: [...pendingPhotoKeys],
-      soilItems: items.map(i=>({type:i.type.trim(),amount:i.amount?parseFloat(i.amount):null,unit:i.unit}))
-    }]
-  };
-  state.soilRecords.push(record);
-  save(); closeModal(); render();
+      logs: [{ date, status, comment, photoKeys: [...pendingPhotoKeys], soilItems: mappedItems }]
+    };
+    state.soilRecords.push(record);
+    save(); closeModal(); render();
+  } catch(e) { alert('保存エラー: ' + e.message); }
 }
 
 function savePlant() {
-  const name = document.getElementById('f-name').value.trim();
-  if (!name) return;
-  const status = getSelectedStatus();
-  const record = {
-    zone: document.getElementById('f-zone').value,
-    name,
-    type: document.getElementById('f-ptype').value,
-    plantedDate: document.getElementById('f-planted').value,
-    status,
-    notes: document.getElementById('f-notes').value.trim(),
-    photoKeys: [...pendingPhotoKeys],
-    logs: [{
-      date: document.getElementById('f-planted').value,
-      status,
-      comment: document.getElementById('f-notes').value.trim(),
-      photoKeys: [...pendingPhotoKeys]
-    }]
-  };
-  state.plants.push(record);
-  save(); closeModal(); render();
+  try {
+    const nameEl = document.getElementById('f-name');
+    const name = nameEl ? nameEl.value.trim() : '';
+    if (!name) { alert('植物名を入力してください'); return; }
+    const zone = document.getElementById('f-zone').value;
+    const type = document.getElementById('f-ptype').value;
+    const plantedDate = document.getElementById('f-planted').value;
+    const status = getSelectedStatus();
+    const notes = document.getElementById('f-notes').value.trim();
+    const record = {
+      zone, name, type, plantedDate, status, notes,
+      photoKeys: [...pendingPhotoKeys],
+      logs: [{ date: plantedDate, status, comment: notes, photoKeys: [...pendingPhotoKeys] }]
+    };
+    state.plants.push(record);
+    save(); closeModal(); render();
+  } catch(e) { alert('保存エラー: ' + e.message); }
 }
 
 function saveTask() {
-  const title = document.getElementById('f-title').value.trim();
-  if (!title) return;
-  const status = getSelectedStatus();
-  const dueDate = document.getElementById('f-due').value;
-  const record = {
-    zone: document.getElementById('f-zone').value,
-    title, dueDate, status,
-    notes: document.getElementById('f-notes').value.trim(),
-    done: false,
-    logs: [{
-      date: dueDate || new Date().toISOString().slice(0,10),
-      status,
-      comment: document.getElementById('f-notes').value.trim(),
-      photoKeys: []
-    }]
-  };
-  state.tasks.push(record);
-  save(); closeModal(); render();
+  try {
+    const titleEl = document.getElementById('f-title');
+    const title = titleEl ? titleEl.value.trim() : '';
+    if (!title) { alert('タスク名を入力してください'); return; }
+    const zone = document.getElementById('f-zone').value;
+    const dueDate = document.getElementById('f-due').value;
+    const status = getSelectedStatus();
+    const notes = document.getElementById('f-notes').value.trim();
+    const record = {
+      zone, title, dueDate, status, notes,
+      done: false,
+      logs: [{ date: dueDate || new Date().toISOString().slice(0,10), status, comment: notes, photoKeys: [] }]
+    };
+    state.tasks.push(record);
+    save(); closeModal(); render();
+  } catch(e) { alert('保存エラー: ' + e.message); }
 }
 
 function toggleTask(i) {
