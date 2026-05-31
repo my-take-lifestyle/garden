@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>庭DIY管理</title>
+
+<!-- PWA: マニフェスト -->
+<link rel="manifest" href="manifest.json">
+
+<!-- PWA: テーマカラー -->
+<meta name="theme-color" content="#2d6a3f">
+
+<!-- PWA: iOS Safari 向け -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="庭DIY">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#1a1a1a;background:#f5f5f0;min-height:100vh}
+.app{max-width:420px;margin:0 auto;padding:0 0 80px;background:#fff;min-height:100vh}
+.header{padding:16px 12px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid #e0ded8}
+.header h1{font-size:18px;font-weight:600;color:#1a1a1a}
+.tab-bar{display:flex;border-bottom:0.5px solid #e0ded8;margin-bottom:16px;gap:2px;padding:0 4px}
+.tab{flex:1;padding:10px 4px;font-size:13px;text-align:center;border:none;background:none;color:#888;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.section{padding:0 12px}
+.card{background:#fff;border:0.5px solid #e0ded8;border-radius:12px;padding:14px;margin-bottom:12px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.card-title{font-size:14px;font-weight:500}
+.badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
+.badge-green{background:#e6f4ea;color:#2d6a3f}
+.badge-amber{background:#fef3e2;color:#7d4e00}
+.badge-blue{background:#e3f0fc;color:#1a5fa0}
+.badge-pink{background:#fce8f3;color:#8b2252}
+.badge-gray{background:#f0eeea;color:#5a5a55}
+.btn{padding:8px 14px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#1a1a1a;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:#2d6a3f;border-color:#2d6a3f;color:#fff}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-danger{background:none;border:none;color:#b91c1c;padding:4px;cursor:pointer;font-size:12px;font-family:inherit}
+.form-group{margin-bottom:12px}
+.form-label{font-size:12px;color:#666;margin-bottom:4px;display:block}
+input,select,textarea{width:100%;padding:8px 10px;border:0.5px solid #ccc;border-radius:8px;font-size:14px;background:#fff;color:#1a1a1a;font-family:inherit}
+textarea{resize:vertical;min-height:70px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#2d6a3f}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-start;justify-content:center;padding-top:20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:20px;width:calc(100% - 32px);max-width:380px;max-height:90vh;overflow-y:auto;margin:auto}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:16px}
+.record-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:0.5px solid #e0ded8}
+.record-row:last-child{border-bottom:none}
+.record-meta{font-size:12px;color:#888;margin-top:2px}
+.record-comment{font-size:13px;color:#666;margin-top:4px}
+.empty{text-align:center;padding:40px 16px;color:#aaa;font-size:14px}
+.zone-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.zone-chip{padding:6px 12px;border-radius:20px;border:0.5px solid #ccc;background:#fff;font-size:13px;cursor:pointer;color:#666;font-family:inherit}
+.zone-chip.active{background:#2d6a3f;border-color:#2d6a3f;color:#fff;font-weight:500}
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid #e0ded8}
+.task-item:last-child{border-bottom:none}
+.task-check{width:20px;height:20px;border-radius:50%;border:1.5px solid #ccc;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;background:#fff}
+.task-check.done{background:#2d6a3f;border-color:#2d6a3f;color:#fff}
+.task-title{font-size:14px}
+.task-title.done{text-decoration:line-through;color:#aaa}
+.task-meta{font-size:12px;color:#888;margin-top:2px}
+.task-overdue{color:#b91c1c}
+.photo-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:0.5px solid #e0ded8;flex-shrink:0}
+.photo-placeholder{width:52px;height:52px;border-radius:8px;background:#f5f5f0;border:0.5px solid #e0ded8;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:20px;flex-shrink:0}
+.fab{position:fixed;bottom:24px;right:24px;width:54px;height:54px;border-radius:50%;background:#2d6a3f;color:#fff;font-size:26px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 16px rgba(45,106,63,0.35);z-index:50;font-family:inherit}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:#f5f5f0;border-radius:8px;padding:14px;text-align:center}
+.stat-num{font-size:24px;font-weight:600;color:#1a1a1a}
+.stat-lbl{font-size:12px;color:#888;margin-top:2px}
+.file-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:0.5px dashed #ccc;border-radius:8px;font-size:13px;cursor:pointer;color:#888;background:#f9f9f7;width:100%;justify-content:center;font-family:inherit}
+.export-row{display:flex;gap:8px;margin-top:8px}
+.section-title{font-size:12px;font-weight:600;color:#888;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="header">
+    <h1>🌱 庭DIY管理</h1>
+    <button class="btn btn-sm" onclick="openZoneManager()">⚙ ゾーン</button>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('soil',this)">土づくり</button>
+    <button class="tab" onclick="switchTab('plants',this)">植物</button>
+    <button class="tab" onclick="switchTab('tasks',this)">タスク</button>
+    <button class="tab" onclick="switchTab('summary',this)">まとめ</button>
+  </div>
+
+  <div id="tab-soil" class="section"></div>
+  <div id="tab-plants" class="section" style="display:none"></div>
+  <div id="tab-tasks" class="section" style="display:none"></div>
+  <div id="tab-summary" class="section" style="display:none"></div>
+
+  <button class="fab" id="fab-btn" onclick="openAddModal()">＋</button>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<input type="file" id="file-input" accept="image/*" style="display:none">
+<input type="file" id="json-import" accept=".json" style="display:none" onchange="importJSON(event)">
+
+<script>
+let state = JSON.parse(localStorage.getItem('garden_diy') || 'null') || {
+  zones: ['フロントガーデン','バックガーデン','ハーブコーナー'],
+  activeZone: 'フロントガーデン',
+  soilRecords: [],
+  plants: [],
+  tasks: [],
+  photoStore: {}
+};
+let currentTab = 'soil';
+let currentPhotoKey = null;
+
+function save() { localStorage.setItem('garden_diy', JSON.stringify(state)); }
+
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['soil','plants','tasks','summary'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t === tab ? '' : 'none';
+  });
+  render();
+}
+
+function setZone(zone, type) {
+  state.activeZone = zone;
+  save();
+  render();
+}
+
+function renderZoneChips(type) {
+  return state.zones.map(z =>
+    `<button class="zone-chip ${z===state.activeZone?'active':''}" onclick="setZone('${z.replace(/'/g,"\\'")}','${type}')">${z}</button>`
+  ).join('');
+}
+
+function renderSoil() {
+  const records = state.soilRecords.filter(r => r.zone === state.activeZone);
+  const el = document.getElementById('tab-soil');
+  let html = `<div class="zone-selector">${renderZoneChips('soil')}</div>`;
+  if (!records.length) {
+    html += '<p class="empty">🌱<br>土の記録がまだありません</p>';
+  } else {
+    records.sort((a,b)=>b.date.localeCompare(a.date)).forEach((r,i) => {
+      const photo = state.photoStore[r.photoKey]
+        ? `<img class="photo-thumb" src="${state.photoStore[r.photoKey]}">`
+        : `<div class="photo-placeholder">📷</div>`;
+      const idx = state.soilRecords.indexOf(r);
+      html += `<div class="card"><div class="card-header">${photo}<div style="flex:1;margin-left:10px"><div class="card-title">${r.soilType}</div><div class="record-meta">${r.date} · ${r.zone}</div></div><span class="badge badge-green">${r.amount}kg</span></div>${r.comment?`<div class="record-comment">${r.comment}</div>`:''}<div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn-danger" onclick="deleteSoil(${idx})">🗑 削除</button></div></div>`;
+    });
+  }
+  el.innerHTML = html;
+}
+
+function renderPlants() {
+  const plants = state.plants.filter(p => p.zone === state.activeZone);
+  const el = document.getElementById('tab-plants');
+  let html = `<div class="zone-selector">${renderZoneChips('plants')}</div>`;
+  const typeColor = {花:'badge-pink',野菜:'badge-green',ハーブ:'badge-amber',樹木:'badge-blue',その他:'badge-gray'};
+  if (!plants.length) {
+    html += '<p class="empty">🌿<br>植物の記録がまだありません</p>';
+  } else {
+    plants.forEach((p,i) => {
+      const photo = state.photoStore[p.photoKey]
+        ? `<img class="photo-thumb" src="${state.photoStore[p.photoKey]}">`
+        : `<div class="photo-placeholder">🌱</div>`;
+      const bc = typeColor[p.type]||'badge-gray';
+      const idx = state.plants.indexOf(p);
+      html += `<div class="card"><div class="card-header">${photo}<div style="flex:1;margin-left:10px"><div class="card-title">${p.name}</div><div class="record-meta">${p.plantedDate} · ${p.zone}</div></div><span class="badge ${bc}">${p.type}</span></div>${p.notes?`<div class="record-comment">${p.notes}</div>`:''}<div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn-danger" onclick="deletePlant(${idx})">🗑 削除</button></div></div>`;
+    });
+  }
+  el.innerHTML = html;
+}
+
+function renderTasks() {
+  const tasks = [...state.tasks].sort((a,b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return (a.dueDate||'').localeCompare(b.dueDate||'');
+  });
+  const el = document.getElementById('tab-tasks');
+  if (!tasks.length) {
+    el.innerHTML = '<p class="empty">✅<br>タスクがまだありません</p>';
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  let html = '<div class="card">';
+  tasks.forEach((t,i) => {
+    const idx = state.tasks.indexOf(t);
+    const overdue = !t.done && t.dueDate && t.dueDate < today;
+    html += `<div class="task-item"><div class="task-check ${t.done?'done':''}" onclick="toggleTask(${idx})">${t.done?'✓':''}</div><div style="flex:1"><div class="task-title ${t.done?'done':''}">${t.title}</div><div class="task-meta ${overdue?'task-overdue':''}">${t.zone} · ${t.dueDate||'期日なし'}${overdue?' ⚠ 期限超過':''}</div>${t.notes?`<div class="record-comment">${t.notes}</div>`:''}</div><button class="btn-danger" onclick="deleteTask(${idx})">🗑</button></div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderSummary() {
+  const el = document.getElementById('tab-summary');
+  const pendingTasks = state.tasks.filter(t=>!t.done).length;
+  const today = new Date().toISOString().slice(0,10);
+  const overdueTasks = state.tasks.filter(t=>!t.done && t.dueDate && t.dueDate < today).length;
+  let html = `
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num">${state.zones.length}</div><div class="stat-lbl">ゾーン数</div></div>
+      <div class="stat-card"><div class="stat-num">${state.plants.length}</div><div class="stat-lbl">植物の記録</div></div>
+      <div class="stat-card"><div class="stat-num">${state.soilRecords.length}</div><div class="stat-lbl">土の記録</div></div>
+      <div class="stat-card"><div class="stat-num ${overdueTasks>0?'task-overdue':''}">${pendingTasks}</div><div class="stat-lbl">未完了タスク${overdueTasks>0?`（${overdueTasks}件超過）`:''}</div></div>
+    </div>
+    <div class="card">
+      <div class="section-title">ゾーン別植物数</div>
+      ${state.zones.map(z=>{
+        const cnt = state.plants.filter(p=>p.zone===z).length;
+        return `<div class="record-row"><span>${z}</span><span class="badge badge-green">${cnt}種</span></div>`;
+      }).join('')}
+    </div>
+    <div class="card">
+      <div class="section-title">データのバックアップ</div>
+      <p style="font-size:13px;color:#666;margin-bottom:12px">データをJSONファイルとして書き出し・読み込みできます。OneDriveなどに保存してバックアップしましょう。</p>
+      <div class="export-row">
+        <button class="btn btn-primary" onclick="exportJSON()" style="flex:1">📥 書き出し（保存）</button>
+        <button class="btn" onclick="document.getElementById('json-import').click()" style="flex:1">📤 読み込み</button>
+      </div>
+    </div>`;
+  el.innerHTML = html;
+}
+
+function render() {
+  if (currentTab === 'soil') renderSoil();
+  else if (currentTab === 'plants') renderPlants();
+  else if (currentTab === 'tasks') renderTasks();
+  else renderSummary();
+}
+
+function openAddModal() {
+  if (currentTab === 'soil') openSoilModal();
+  else if (currentTab === 'plants') openPlantModal();
+  else if (currentTab === 'tasks') openTaskModal();
+  else openSoilModal();
+}
+
+function openModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentPhotoKey = null;
+  document.getElementById('file-input').value = '';
+}
+
+function openSoilModal() {
+  const today = new Date().toISOString().slice(0,10);
+  openModal(`
+    <div class="modal-title">🌱 土の記録を追加</div>
+    <div class="form-group"><label class="form-label">ゾーン</label>
+    <select id="f-zone">${state.zones.map(z=>`<option ${z===state.activeZone?'selected':''}>${z}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">日付</label><input type="date" id="f-date" value="${today}"></div>
+    <div class="form-group"><label class="form-label">土の種類</label>
+    <select id="f-type"><option>腐葉土</option><option>培養土</option><option>堆肥</option><option>赤玉土</option><option>バーミキュライト</option><option>パーライト</option><option>その他</option></select></div>
+    <div class="form-group"><label class="form-label">量 (kg)</label><input type="number" id="f-amt" value="10" min="0" step="0.5"></div>
+    <div class="form-group"><label class="form-label">コメント</label><textarea id="f-comment" placeholder="pH調整、混合比率など..."></textarea></div>
+    <div class="form-group"><label class="form-label">写真</label>
+    <label class="file-btn" onclick="currentPhotoKey='soil-'+Date.now();document.getElementById('file-input').click()">📷 写真を追加</label>
+    <div id="photo-preview" style="margin-top:8px"></div></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn" style="flex:1" onclick="closeModal()">キャンセル</button>
+    <button class="btn btn-primary" style="flex:1" onclick="saveSoil()">保存</button></div>`);
+  document.getElementById('file-input').onchange = (e) => handlePhoto(e, 'photo-preview');
+}
+
+function openPlantModal() {
+  const today = new Date().toISOString().slice(0,10);
+  openModal(`
+    <div class="modal-title">🌿 植物を追加</div>
+    <div class="form-group"><label class="form-label">ゾーン</label>
+    <select id="f-zone">${state.zones.map(z=>`<option ${z===state.activeZone?'selected':''}>${z}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">植物名</label><input type="text" id="f-name" placeholder="例: ミニトマト、ラベンダー..."></div>
+    <div class="form-group"><label class="form-label">種類</label>
+    <select id="f-ptype"><option>野菜</option><option>花</option><option>ハーブ</option><option>樹木</option><option>その他</option></select></div>
+    <div class="form-group"><label class="form-label">植えた日</label><input type="date" id="f-planted" value="${today}"></div>
+    <div class="form-group"><label class="form-label">メモ</label><textarea id="f-notes" placeholder="水やり頻度、特記事項など..."></textarea></div>
+    <div class="form-group"><label class="form-label">写真</label>
+    <label class="file-btn" onclick="currentPhotoKey='plant-'+Date.now();document.getElementById('file-input').click()">📷 写真を追加</label>
+    <div id="photo-preview" style="margin-top:8px"></div></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn" style="flex:1" onclick="closeModal()">キャンセル</button>
+    <button class="btn btn-primary" style="flex:1" onclick="savePlant()">保存</button></div>`);
+  document.getElementById('file-input').onchange = (e) => handlePhoto(e, 'photo-preview');
+}
+
+function openTaskModal() {
+  const today = new Date().toISOString().slice(0,10);
+  openModal(`
+    <div class="modal-title">✅ タスクを追加</div>
+    <div class="form-group"><label class="form-label">ゾーン</label>
+    <select id="f-zone">${state.zones.map(z=>`<option ${z===state.activeZone?'selected':''}>${z}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">タスク名</label><input type="text" id="f-title" placeholder="例: 追肥、水やり、剪定..."></div>
+    <div class="form-group"><label class="form-label">期日</label><input type="date" id="f-due" value="${today}"></div>
+    <div class="form-group"><label class="form-label">メモ</label><textarea id="f-notes" placeholder="詳細、使用する肥料など..."></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn" style="flex:1" onclick="closeModal()">キャンセル</button>
+    <button class="btn btn-primary" style="flex:1" onclick="saveTask()">保存</button></div>`);
+}
+
+function openZoneManager() {
+  openModal(`
+    <div class="modal-title">⚙ ゾーン管理</div>
+    <div id="zone-list">${state.zones.map((z,i)=>`<div class="record-row"><span>${z}</span>${state.zones.length>1?`<button class="btn-danger" onclick="deleteZone(${i})">🗑</button>`:''}</div>`).join('')}</div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+    <input type="text" id="new-zone" placeholder="新しいゾーン名" style="flex:1">
+    <button class="btn btn-primary" onclick="addZone()">＋</button></div>
+    <div style="margin-top:16px"><button class="btn" onclick="closeModal()" style="width:100%">閉じる</button></div>`);
+}
+
+function addZone() {
+  const name = document.getElementById('new-zone').value.trim();
+  if (!name || state.zones.includes(name)) return;
+  state.zones.push(name);
+  save();
+  openZoneManager();
+}
+
+function deleteZone(i) {
+  if (state.zones.length <= 1) return;
+  const z = state.zones[i];
+  state.zones.splice(i,1);
+  if (state.activeZone === z) state.activeZone = state.zones[0];
+  save();
+  openZoneManager();
+}
+
+function handlePhoto(e, previewId) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const key = currentPhotoKey || 'photo-'+Date.now();
+    currentPhotoKey = key;
+    state.photoStore[key] = ev.target.result;
+    const prev = document.getElementById(previewId);
+    if (prev) prev.innerHTML = `<img class="photo-thumb" src="${ev.target.result}">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveSoil() {
+  state.soilRecords.push({
+    zone: document.getElementById('f-zone').value,
+    date: document.getElementById('f-date').value,
+    soilType: document.getElementById('f-type').value,
+    amount: parseFloat(document.getElementById('f-amt').value) || 0,
+    comment: document.getElementById('f-comment').value.trim(),
+    photoKey: currentPhotoKey
+  });
+  save(); closeModal(); render();
+}
+
+function savePlant() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) return;
+  state.plants.push({
+    zone: document.getElementById('f-zone').value,
+    name,
+    type: document.getElementById('f-ptype').value,
+    plantedDate: document.getElementById('f-planted').value,
+    notes: document.getElementById('f-notes').value.trim(),
+    photoKey: currentPhotoKey
+  });
+  save(); closeModal(); render();
+}
+
+function saveTask() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) return;
+  state.tasks.push({
+    zone: document.getElementById('f-zone').value,
+    title,
+    dueDate: document.getElementById('f-due').value,
+    notes: document.getElementById('f-notes').value.trim(),
+    done: false
+  });
+  save(); closeModal(); render();
+}
+
+function toggleTask(i) {
+  state.tasks[i].done = !state.tasks[i].done;
+  save(); renderTasks();
+}
+
+function deleteSoil(i) {
+  state.soilRecords.splice(i,1);
+  save(); renderSoil();
+}
+
+function deletePlant(i) {
+  state.plants.splice(i,1);
+  save(); renderPlants();
+}
+
+function deleteTask(i) {
+  state.tasks.splice(i,1);
+  save(); renderTasks();
+}
+
+function exportJSON() {
+  const data = JSON.parse(JSON.stringify(state));
+  delete data.photoStore;
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `garden_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!imported.zones || !imported.soilRecords) {
+        alert('正しいバックアップファイルではありません。');
+        return;
+      }
+      if (confirm('現在のデータを上書きして読み込みますか？\n※写真データは別途保存されません。')) {
+        imported.photoStore = state.photoStore;
+        state = imported;
+        save();
+        render();
+        alert('読み込みが完了しました。');
+      }
+    } catch(err) {
+      alert('ファイルの読み込みに失敗しました。');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+render();
+
+// PWA: Service Worker 登録
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/garden/sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.error('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
