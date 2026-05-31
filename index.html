@@ -4,31 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>庭DIY管理</title>
-
-<!-- PWA: マニフェスト -->
 <link rel="manifest" href="manifest.json">
-
-<!-- PWA: テーマカラー -->
 <meta name="theme-color" content="#2d6a3f">
-
-<!-- PWA: iOS Safari 向け -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="庭DIY">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#1a1a1a;background:#f5f5f0;min-height:100vh}
 .app{max-width:420px;margin:0 auto;padding:0 0 80px;background:#fff;min-height:100vh}
 .header{padding:16px 12px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid #e0ded8}
 .header h1{font-size:18px;font-weight:600;color:#1a1a1a}
-.tab-bar{display:flex;border-bottom:0.5px solid #e0ded8;margin-bottom:16px;gap:2px;padding:0 4px}
-.tab{flex:1;padding:10px 4px;font-size:13px;text-align:center;border:none;background:none;color:#888;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab-bar{display:flex;border-bottom:0.5px solid #e0ded8;margin-bottom:16px;gap:2px;padding:0 4px;overflow-x:auto}
+.tab{flex:1;min-width:60px;padding:10px 4px;font-size:13px;text-align:center;border:none;background:none;color:#888;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
 .tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
 .section{padding:0 12px}
 .card{background:#fff;border:0.5px solid #e0ded8;border-radius:12px;padding:14px;margin-bottom:12px}
-.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .card-title{font-size:14px;font-weight:500}
 .badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
 .badge-green{background:#e6f4ea;color:#2d6a3f}
@@ -36,6 +29,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .badge-blue{background:#e3f0fc;color:#1a5fa0}
 .badge-pink{background:#fce8f3;color:#8b2252}
 .badge-gray{background:#f0eeea;color:#5a5a55}
+.badge-soil{background:#f5ede3;color:#7a4f2d}
 .btn{padding:8px 14px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#1a1a1a;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
 .btn:active{transform:scale(0.98)}
 .btn-primary{background:#2d6a3f;border-color:#2d6a3f;color:#fff}
@@ -66,7 +60,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#2d6a3f}
 .task-title.done{text-decoration:line-through;color:#aaa}
 .task-meta{font-size:12px;color:#888;margin-top:2px}
 .task-overdue{color:#b91c1c}
-.photo-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:0.5px solid #e0ded8;flex-shrink:0}
+.photo-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:0.5px solid #e0ded8;flex-shrink:0;cursor:pointer}
 .photo-placeholder{width:52px;height:52px;border-radius:8px;background:#f5f5f0;border:0.5px solid #e0ded8;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:20px;flex-shrink:0}
 .fab{position:fixed;bottom:24px;right:24px;width:54px;height:54px;border-radius:50%;background:#2d6a3f;color:#fff;font-size:26px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 16px rgba(45,106,63,0.35);z-index:50;font-family:inherit}
 .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
@@ -76,6 +70,37 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#2d6a3f}
 .file-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:0.5px dashed #ccc;border-radius:8px;font-size:13px;cursor:pointer;color:#888;background:#f9f9f7;width:100%;justify-content:center;font-family:inherit}
 .export-row{display:flex;gap:8px;margin-top:8px}
 .section-title{font-size:12px;font-weight:600;color:#888;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+
+/* 土素材リスト */
+.soil-items-list{margin-bottom:8px}
+.soil-item-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.soil-item-row input[type=text]{flex:2}
+.soil-item-row input[type=number]{flex:1;min-width:60px}
+.soil-item-row select{flex:1;min-width:64px}
+.soil-item-remove{background:none;border:none;color:#b91c1c;font-size:18px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0}
+.soil-items-display{font-size:13px;color:#444;margin-top:6px}
+.soil-items-display li{list-style:none;padding:2px 0;display:flex;align-items:center;gap:4px}
+.soil-items-display li::before{content:'・'}
+
+/* ライトボックス */
+.lightbox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);z-index:200;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox img{max-width:94vw;max-height:88vh;border-radius:8px;object-fit:contain}
+.lightbox-close{position:fixed;top:16px;right:20px;color:#fff;font-size:32px;cursor:pointer;line-height:1;background:none;border:none;font-family:inherit}
+
+/* 全体タブ フィルタ */
+.filter-bar{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.filter-chip{padding:5px 12px;border-radius:20px;border:0.5px solid #ccc;background:#fff;font-size:12px;cursor:pointer;color:#666;font-family:inherit}
+.filter-chip.active{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
+.filter-label{font-size:11px;color:#aaa;font-weight:600;letter-spacing:.04em;align-self:center}
+.all-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border-bottom:0.5px solid #e0ded8}
+.all-item:last-child{border-bottom:none}
+.all-item-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+.all-item-body{flex:1;min-width:0}
+.all-item-title{font-size:14px;font-weight:500}
+.all-item-meta{font-size:12px;color:#888;margin-top:2px}
+.all-item-sub{font-size:13px;color:#555;margin-top:3px}
 </style>
 </head>
 <body>
@@ -86,13 +111,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#2d6a3f}
   </div>
 
   <div class="tab-bar">
-    <button class="tab active" onclick="switchTab('soil',this)">土づくり</button>
+    <button class="tab active" onclick="switchTab('all',this)">全体</button>
+    <button class="tab" onclick="switchTab('soil',this)">土づくり</button>
     <button class="tab" onclick="switchTab('plants',this)">植物</button>
     <button class="tab" onclick="switchTab('tasks',this)">タスク</button>
     <button class="tab" onclick="switchTab('summary',this)">まとめ</button>
   </div>
 
-  <div id="tab-soil" class="section"></div>
+  <div id="tab-all"></div>
+  <div id="tab-soil" class="section" style="display:none"></div>
   <div id="tab-plants" class="section" style="display:none"></div>
   <div id="tab-tasks" class="section" style="display:none"></div>
   <div id="tab-summary" class="section" style="display:none"></div>
@@ -100,8 +127,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#2d6a3f}
   <button class="fab" id="fab-btn" onclick="openAddModal()">＋</button>
 </div>
 
+<!-- メインモーダル -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- ライトボックス -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
 </div>
 
 <input type="file" id="file-input" accept="image/*" style="display:none">
@@ -109,15 +143,20 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#2d6a3f}
 
 <script>
 let state = JSON.parse(localStorage.getItem('garden_diy') || 'null') || {
-  zones: ['フロントガーデン','バックガーデン','ハーブコーナー'],
-  activeZone: 'フロントガーデン',
+  zones: ['ロックガーデン','フロントガーデン','菜園','その他'],
+  activeZone: 'ロックガーデン',
   soilRecords: [],
   plants: [],
   tasks: [],
   photoStore: {}
 };
-let currentTab = 'soil';
+// 既存データのゾーンが古いデフォルトのままなら何もしない（ユーザーデータ優先）
+let currentTab = 'all';
 let currentPhotoKey = null;
+
+// 全体タブのフィルタ状態
+let filterCat = 'all'; // all / soil / plant / task
+let filterZone = 'all';
 
 function save() { localStorage.setItem('garden_diy', JSON.stringify(state)); }
 
@@ -125,62 +164,207 @@ function switchTab(tab, el) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  ['soil','plants','tasks','summary'].forEach(t => {
+  ['all','soil','plants','tasks','summary'].forEach(t => {
     document.getElementById('tab-'+t).style.display = t === tab ? '' : 'none';
   });
+  // 全体タブはsectionクラスなし（filter-barが外にある）
   render();
 }
 
-function setZone(zone, type) {
+function setZone(zone) {
   state.activeZone = zone;
   save();
   render();
 }
 
-function renderZoneChips(type) {
+function renderZoneChips() {
   return state.zones.map(z =>
-    `<button class="zone-chip ${z===state.activeZone?'active':''}" onclick="setZone('${z.replace(/'/g,"\\'")}','${type}')">${z}</button>`
+    `<button class="zone-chip ${z===state.activeZone?'active':''}" onclick="setZone('${z.replace(/'/g,"\\'")}'')">${z}</button>`
   ).join('');
 }
 
+// ========== 全体タブ ==========
+function renderAll() {
+  const el = document.getElementById('tab-all');
+  const today = new Date().toISOString().slice(0,10);
+
+  // フィルタUI
+  const zoneChips = ['all', ...state.zones].map(z =>
+    `<button class="filter-chip ${filterZone===z?'active':''}" onclick="setFilterZone('${z.replace(/'/g,"\\'")}')"> ${z==='all'?'すべてのゾーン':z}</button>`
+  ).join('');
+
+  let filterHtml = `
+    <div class="filter-bar">
+      <div class="filter-row">
+        <span class="filter-label">カテゴリ</span>
+        <button class="filter-chip ${filterCat==='all'?'active':''}" onclick="setFilterCat('all')">すべて</button>
+        <button class="filter-chip ${filterCat==='soil'?'active':''}" onclick="setFilterCat('soil')">🌱 土づくり</button>
+        <button class="filter-chip ${filterCat==='plant'?'active':''}" onclick="setFilterCat('plant')">🌿 植物</button>
+        <button class="filter-chip ${filterCat==='task'?'active':''}" onclick="setFilterCat('task')">✅ タスク</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">ゾーン</span>
+        ${zoneChips}
+      </div>
+    </div>`;
+
+  // データ収集
+  let items = [];
+
+  if (filterCat === 'all' || filterCat === 'soil') {
+    state.soilRecords.forEach((r, idx) => {
+      if (filterZone !== 'all' && r.zone !== filterZone) return;
+      items.push({ type:'soil', date: r.date, zone: r.zone, data: r, idx });
+    });
+  }
+  if (filterCat === 'all' || filterCat === 'plant') {
+    state.plants.forEach((p, idx) => {
+      if (filterZone !== 'all' && p.zone !== filterZone) return;
+      items.push({ type:'plant', date: p.plantedDate, zone: p.zone, data: p, idx });
+    });
+  }
+  if (filterCat === 'all' || filterCat === 'task') {
+    state.tasks.forEach((t, idx) => {
+      if (filterZone !== 'all' && t.zone !== filterZone) return;
+      items.push({ type:'task', date: t.dueDate||'', zone: t.zone, data: t, idx });
+    });
+  }
+
+  // 日付降順ソート（タスクは期日順）
+  items.sort((a,b) => b.date.localeCompare(a.date));
+
+  if (!items.length) {
+    el.innerHTML = filterHtml + '<p class="empty">該当するデータがありません</p>';
+    return;
+  }
+
+  const typeColor = {花:'badge-pink',野菜:'badge-green',ハーブ:'badge-amber',樹木:'badge-blue',その他:'badge-gray'};
+
+  let listHtml = '<div class="card" style="margin:0 12px 12px">';
+  items.forEach(item => {
+    if (item.type === 'soil') {
+      const r = item.data;
+      const photo = state.photoStore[r.photoKey]
+        ? `<img class="photo-thumb" src="${state.photoStore[r.photoKey]}" onclick="openLightbox('${r.photoKey}')" style="width:40px;height:40px">`
+        : '';
+      const itemsText = (r.items||[{type:r.soilType,amount:r.amount,unit:'kg'}])
+        .map(i => `${i.type} ${i.amount}${i.unit}`).join('、');
+      listHtml += `<div class="all-item">
+        <div class="all-item-icon">🌱</div>
+        <div class="all-item-body">
+          <div class="all-item-title">${itemsText.slice(0,30)}${itemsText.length>30?'…':''}</div>
+          <div class="all-item-meta">${r.date} · <span class="badge badge-soil" style="font-size:10px">${r.zone}</span></div>
+          ${r.comment?`<div class="all-item-sub">${r.comment}</div>`:''}
+        </div>
+        ${photo}
+      </div>`;
+    } else if (item.type === 'plant') {
+      const p = item.data;
+      const photo = state.photoStore[p.photoKey]
+        ? `<img class="photo-thumb" src="${state.photoStore[p.photoKey]}" onclick="openLightbox('${p.photoKey}')" style="width:40px;height:40px">`
+        : '';
+      const bc = typeColor[p.type]||'badge-gray';
+      listHtml += `<div class="all-item">
+        <div class="all-item-icon">🌿</div>
+        <div class="all-item-body">
+          <div class="all-item-title">${p.name} <span class="badge ${bc}" style="font-size:10px">${p.type}</span></div>
+          <div class="all-item-meta">${p.plantedDate} · <span class="badge badge-soil" style="font-size:10px">${p.zone}</span></div>
+          ${p.notes?`<div class="all-item-sub">${p.notes}</div>`:''}
+        </div>
+        ${photo}
+      </div>`;
+    } else if (item.type === 'task') {
+      const t = item.data;
+      const overdue = !t.done && t.dueDate && t.dueDate < today;
+      listHtml += `<div class="all-item">
+        <div class="all-item-icon">${t.done?'✅':'🔲'}</div>
+        <div class="all-item-body">
+          <div class="all-item-title ${t.done?'task-title done':''}">${t.title}</div>
+          <div class="all-item-meta ${overdue?'task-overdue':''}">${t.dueDate||'期日なし'} · <span class="badge badge-soil" style="font-size:10px">${t.zone}</span>${overdue?' ⚠ 期限超過':''}</div>
+          ${t.notes?`<div class="all-item-sub">${t.notes}</div>`:''}
+        </div>
+      </div>`;
+    }
+  });
+  listHtml += '</div>';
+
+  el.innerHTML = filterHtml + listHtml;
+}
+
+function setFilterCat(cat) { filterCat = cat; renderAll(); }
+function setFilterZone(zone) { filterZone = zone; renderAll(); }
+
+// ========== 土づくりタブ ==========
 function renderSoil() {
   const records = state.soilRecords.filter(r => r.zone === state.activeZone);
   const el = document.getElementById('tab-soil');
-  let html = `<div class="zone-selector">${renderZoneChips('soil')}</div>`;
+  let html = `<div class="zone-selector">${renderZoneChips()}</div>`;
   if (!records.length) {
     html += '<p class="empty">🌱<br>土の記録がまだありません</p>';
   } else {
-    records.sort((a,b)=>b.date.localeCompare(a.date)).forEach((r,i) => {
+    records.sort((a,b)=>b.date.localeCompare(a.date)).forEach(r => {
       const photo = state.photoStore[r.photoKey]
-        ? `<img class="photo-thumb" src="${state.photoStore[r.photoKey]}">`
+        ? `<img class="photo-thumb" src="${state.photoStore[r.photoKey]}" onclick="openLightbox('${r.photoKey}')">`
         : `<div class="photo-placeholder">📷</div>`;
       const idx = state.soilRecords.indexOf(r);
-      html += `<div class="card"><div class="card-header">${photo}<div style="flex:1;margin-left:10px"><div class="card-title">${r.soilType}</div><div class="record-meta">${r.date} · ${r.zone}</div></div><span class="badge badge-green">${r.amount}kg</span></div>${r.comment?`<div class="record-comment">${r.comment}</div>`:''}<div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn-danger" onclick="deleteSoil(${idx})">🗑 削除</button></div></div>`;
+      // 複数素材対応：itemsがあればそちら、なければ旧形式を変換して表示
+      const items = r.items || [{type: r.soilType||'不明', amount: r.amount||0, unit:'kg'}];
+      const itemsHtml = items.map(i =>
+        `<li>${i.type}${i.amount?` ${i.amount}${i.unit}`:' 適量'}</li>`
+      ).join('');
+      html += `<div class="card">
+        <div class="card-header">
+          ${photo}
+          <div style="flex:1;margin-left:10px">
+            <div class="card-title">${r.date} · ${r.zone}</div>
+            <ul class="soil-items-display">${itemsHtml}</ul>
+          </div>
+        </div>
+        ${r.comment?`<div class="record-comment">${r.comment}</div>`:''}
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="btn-danger" onclick="deleteSoil(${idx})">🗑 削除</button>
+        </div>
+      </div>`;
     });
   }
   el.innerHTML = html;
 }
 
+// ========== 植物タブ ==========
 function renderPlants() {
   const plants = state.plants.filter(p => p.zone === state.activeZone);
   const el = document.getElementById('tab-plants');
-  let html = `<div class="zone-selector">${renderZoneChips('plants')}</div>`;
+  let html = `<div class="zone-selector">${renderZoneChips()}</div>`;
   const typeColor = {花:'badge-pink',野菜:'badge-green',ハーブ:'badge-amber',樹木:'badge-blue',その他:'badge-gray'};
   if (!plants.length) {
     html += '<p class="empty">🌿<br>植物の記録がまだありません</p>';
   } else {
-    plants.forEach((p,i) => {
+    plants.forEach(p => {
       const photo = state.photoStore[p.photoKey]
-        ? `<img class="photo-thumb" src="${state.photoStore[p.photoKey]}">`
+        ? `<img class="photo-thumb" src="${state.photoStore[p.photoKey]}" onclick="openLightbox('${p.photoKey}')">`
         : `<div class="photo-placeholder">🌱</div>`;
       const bc = typeColor[p.type]||'badge-gray';
       const idx = state.plants.indexOf(p);
-      html += `<div class="card"><div class="card-header">${photo}<div style="flex:1;margin-left:10px"><div class="card-title">${p.name}</div><div class="record-meta">${p.plantedDate} · ${p.zone}</div></div><span class="badge ${bc}">${p.type}</span></div>${p.notes?`<div class="record-comment">${p.notes}</div>`:''}<div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn-danger" onclick="deletePlant(${idx})">🗑 削除</button></div></div>`;
+      html += `<div class="card">
+        <div class="card-header">
+          ${photo}
+          <div style="flex:1;margin-left:10px">
+            <div class="card-title">${p.name}</div>
+            <div class="record-meta">${p.plantedDate} · ${p.zone}</div>
+          </div>
+          <span class="badge ${bc}">${p.type}</span>
+        </div>
+        ${p.notes?`<div class="record-comment">${p.notes}</div>`:''}
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="btn-danger" onclick="deletePlant(${idx})">🗑 削除</button>
+        </div>
+      </div>`;
     });
   }
   el.innerHTML = html;
 }
 
+// ========== タスクタブ ==========
 function renderTasks() {
   const tasks = [...state.tasks].sort((a,b) => {
     if (a.done !== b.done) return a.done ? 1 : -1;
@@ -193,15 +377,24 @@ function renderTasks() {
   }
   const today = new Date().toISOString().slice(0,10);
   let html = '<div class="card">';
-  tasks.forEach((t,i) => {
+  tasks.forEach(t => {
     const idx = state.tasks.indexOf(t);
     const overdue = !t.done && t.dueDate && t.dueDate < today;
-    html += `<div class="task-item"><div class="task-check ${t.done?'done':''}" onclick="toggleTask(${idx})">${t.done?'✓':''}</div><div style="flex:1"><div class="task-title ${t.done?'done':''}">${t.title}</div><div class="task-meta ${overdue?'task-overdue':''}">${t.zone} · ${t.dueDate||'期日なし'}${overdue?' ⚠ 期限超過':''}</div>${t.notes?`<div class="record-comment">${t.notes}</div>`:''}</div><button class="btn-danger" onclick="deleteTask(${idx})">🗑</button></div>`;
+    html += `<div class="task-item">
+      <div class="task-check ${t.done?'done':''}" onclick="toggleTask(${idx})">${t.done?'✓':''}</div>
+      <div style="flex:1">
+        <div class="task-title ${t.done?'done':''}">${t.title}</div>
+        <div class="task-meta ${overdue?'task-overdue':''}">${t.zone} · ${t.dueDate||'期日なし'}${overdue?' ⚠ 期限超過':''}</div>
+        ${t.notes?`<div class="record-comment">${t.notes}</div>`:''}
+      </div>
+      <button class="btn-danger" onclick="deleteTask(${idx})">🗑</button>
+    </div>`;
   });
   html += '</div>';
   el.innerHTML = html;
 }
 
+// ========== まとめタブ ==========
 function renderSummary() {
   const el = document.getElementById('tab-summary');
   const pendingTasks = state.tasks.filter(t=>!t.done).length;
@@ -223,9 +416,9 @@ function renderSummary() {
     </div>
     <div class="card">
       <div class="section-title">データのバックアップ</div>
-      <p style="font-size:13px;color:#666;margin-bottom:12px">データをJSONファイルとして書き出し・読み込みできます。OneDriveなどに保存してバックアップしましょう。</p>
+      <p style="font-size:13px;color:#666;margin-bottom:12px">データをJSONファイルとして書き出し・読み込みできます。</p>
       <div class="export-row">
-        <button class="btn btn-primary" onclick="exportJSON()" style="flex:1">📥 書き出し（保存）</button>
+        <button class="btn btn-primary" onclick="exportJSON()" style="flex:1">📥 書き出し</button>
         <button class="btn" onclick="document.getElementById('json-import').click()" style="flex:1">📤 読み込み</button>
       </div>
     </div>`;
@@ -233,12 +426,14 @@ function renderSummary() {
 }
 
 function render() {
-  if (currentTab === 'soil') renderSoil();
+  if (currentTab === 'all') renderAll();
+  else if (currentTab === 'soil') renderSoil();
   else if (currentTab === 'plants') renderPlants();
   else if (currentTab === 'tasks') renderTasks();
   else renderSummary();
 }
 
+// ========== モーダル ==========
 function openAddModal() {
   if (currentTab === 'soil') openSoilModal();
   else if (currentTab === 'plants') openPlantModal();
@@ -256,16 +451,22 @@ function closeModal() {
   document.getElementById('file-input').value = '';
 }
 
+// ========== 土づくりモーダル（複数素材対応） ==========
+let soilItems = [];
+
 function openSoilModal() {
+  soilItems = [{type:'', amount:'', unit:'kg'}];
   const today = new Date().toISOString().slice(0,10);
   openModal(`
     <div class="modal-title">🌱 土の記録を追加</div>
     <div class="form-group"><label class="form-label">ゾーン</label>
     <select id="f-zone">${state.zones.map(z=>`<option ${z===state.activeZone?'selected':''}>${z}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">日付</label><input type="date" id="f-date" value="${today}"></div>
-    <div class="form-group"><label class="form-label">土の種類</label>
-    <select id="f-type"><option>腐葉土</option><option>培養土</option><option>堆肥</option><option>赤玉土</option><option>バーミキュライト</option><option>パーライト</option><option>その他</option></select></div>
-    <div class="form-group"><label class="form-label">量 (kg)</label><input type="number" id="f-amt" value="10" min="0" step="0.5"></div>
+    <div class="form-group">
+      <label class="form-label">使用した土・資材</label>
+      <div id="soil-items-list" class="soil-items-list"></div>
+      <button type="button" class="btn btn-sm" style="margin-top:4px" onclick="addSoilItem()">＋ 素材を追加</button>
+    </div>
     <div class="form-group"><label class="form-label">コメント</label><textarea id="f-comment" placeholder="pH調整、混合比率など..."></textarea></div>
     <div class="form-group"><label class="form-label">写真</label>
     <label class="file-btn" onclick="currentPhotoKey='soil-'+Date.now();document.getElementById('file-input').click()">📷 写真を追加</label>
@@ -274,8 +475,37 @@ function openSoilModal() {
     <button class="btn" style="flex:1" onclick="closeModal()">キャンセル</button>
     <button class="btn btn-primary" style="flex:1" onclick="saveSoil()">保存</button></div>`);
   document.getElementById('file-input').onchange = (e) => handlePhoto(e, 'photo-preview');
+  renderSoilItems();
 }
 
+function renderSoilItems() {
+  const container = document.getElementById('soil-items-list');
+  if (!container) return;
+  container.innerHTML = soilItems.map((item, i) => `
+    <div class="soil-item-row">
+      <input type="text" placeholder="例: 腐葉土、真砂土…" value="${item.type}" oninput="soilItems[${i}].type=this.value">
+      <input type="number" placeholder="量" min="0" step="0.5" value="${item.amount}" oninput="soilItems[${i}].amount=this.value">
+      <select onchange="soilItems[${i}].unit=this.value">
+        <option ${item.unit==='kg'?'selected':''}>kg</option>
+        <option ${item.unit==='L'?'selected':''}>L</option>
+        <option ${item.unit==='袋'?'selected':''}>袋</option>
+        <option ${item.unit==='適量'?'selected':''}>適量</option>
+      </select>
+      ${soilItems.length>1?`<button class="soil-item-remove" onclick="removeSoilItem(${i})">×</button>`:''}
+    </div>`).join('');
+}
+
+function addSoilItem() {
+  soilItems.push({type:'', amount:'', unit:'kg'});
+  renderSoilItems();
+}
+
+function removeSoilItem(i) {
+  soilItems.splice(i, 1);
+  renderSoilItems();
+}
+
+// ========== 植物モーダル ==========
 function openPlantModal() {
   const today = new Date().toISOString().slice(0,10);
   openModal(`
@@ -296,6 +526,7 @@ function openPlantModal() {
   document.getElementById('file-input').onchange = (e) => handlePhoto(e, 'photo-preview');
 }
 
+// ========== タスクモーダル ==========
 function openTaskModal() {
   const today = new Date().toISOString().slice(0,10);
   openModal(`
@@ -310,6 +541,7 @@ function openTaskModal() {
     <button class="btn btn-primary" style="flex:1" onclick="saveTask()">保存</button></div>`);
 }
 
+// ========== ゾーン管理 ==========
 function openZoneManager() {
   openModal(`
     <div class="modal-title">⚙ ゾーン管理</div>
@@ -337,6 +569,7 @@ function deleteZone(i) {
   openZoneManager();
 }
 
+// ========== 写真 ==========
 function handlePhoto(e, previewId) {
   const file = e.target.files[0];
   if (!file) return;
@@ -346,17 +579,34 @@ function handlePhoto(e, previewId) {
     currentPhotoKey = key;
     state.photoStore[key] = ev.target.result;
     const prev = document.getElementById(previewId);
-    if (prev) prev.innerHTML = `<img class="photo-thumb" src="${ev.target.result}">`;
+    if (prev) prev.innerHTML = `<img class="photo-thumb" src="${ev.target.result}" onclick="openLightbox('${key}')">`;
   };
   reader.readAsDataURL(file);
 }
 
+function openLightbox(photoKey) {
+  const src = state.photoStore[photoKey];
+  if (!src) return;
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+// ========== 保存処理 ==========
 function saveSoil() {
+  const items = soilItems.filter(i => i.type.trim());
+  if (!items.length) return;
   state.soilRecords.push({
     zone: document.getElementById('f-zone').value,
     date: document.getElementById('f-date').value,
-    soilType: document.getElementById('f-type').value,
-    amount: parseFloat(document.getElementById('f-amt').value) || 0,
+    items: items.map(i => ({
+      type: i.type.trim(),
+      amount: i.amount ? parseFloat(i.amount) : null,
+      unit: i.unit
+    })),
     comment: document.getElementById('f-comment').value.trim(),
     photoKey: currentPhotoKey
   });
@@ -392,7 +642,7 @@ function saveTask() {
 
 function toggleTask(i) {
   state.tasks[i].done = !state.tasks[i].done;
-  save(); renderTasks();
+  save(); render();
 }
 
 function deleteSoil(i) {
@@ -410,6 +660,7 @@ function deleteTask(i) {
   save(); renderTasks();
 }
 
+// ========== バックアップ ==========
 function exportJSON() {
   const data = JSON.parse(JSON.stringify(state));
   delete data.photoStore;
