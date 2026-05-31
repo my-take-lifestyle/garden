@@ -2,1107 +2,1255 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>庭DIY管理</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2d6a3f">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="庭DIY">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="庭DIY管理">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#1a1a1a;background:#f5f5f0;min-height:100vh}
-.app{max-width:420px;margin:0 auto;padding:0 0 80px;background:#fff;min-height:100vh}
-.header{padding:16px 12px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid #e0ded8}
-.header h1{font-size:18px;font-weight:600}
-.tab-bar{display:flex;border-bottom:0.5px solid #e0ded8;margin-bottom:16px;padding:0 4px;overflow-x:auto}
-.tab{flex:1;min-width:52px;padding:10px 2px;font-size:12px;text-align:center;border:none;background:none;color:#888;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;font-family:inherit}
-.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
-.section{padding:0 12px}
-.card{background:#fff;border:0.5px solid #e0ded8;border-radius:12px;padding:14px;margin-bottom:12px}
-.badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
-.badge-green{background:#e6f4ea;color:#2d6a3f}
-.badge-amber{background:#fef3e2;color:#7d4e00}
-.badge-blue{background:#e3f0fc;color:#1a5fa0}
-.badge-pink{background:#fce8f3;color:#8b2252}
-.badge-gray{background:#f0eeea;color:#5a5a55}
-.badge-soil{background:#f5ede3;color:#7a4f2d}
-.status-新規{background:#e3f0fc;color:#1a5fa0}
-.status-追記{background:#fef3e2;color:#7d4e00}
-.status-修正{background:#f0eeea;color:#5a5a55}
-.status-完了{background:#e6f4ea;color:#2d6a3f}
-.btn{padding:8px 14px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#1a1a1a;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
-.btn:active{transform:scale(0.98)}
-.btn-primary{background:#2d6a3f;border-color:#2d6a3f;color:#fff}
-.btn-sm{padding:5px 10px;font-size:12px}
-.btn-danger{background:none;border:none;color:#b91c1c;padding:4px;cursor:pointer;font-size:12px;font-family:inherit}
-.form-group{margin-bottom:12px}
-.form-label{font-size:12px;color:#666;margin-bottom:4px;display:block}
-input,select,textarea{width:100%;padding:8px 10px;border:0.5px solid #ccc;border-radius:8px;font-size:14px;background:#fff;color:#1a1a1a;font-family:inherit}
-textarea{resize:vertical;min-height:64px}
-input:focus,select:focus,textarea:focus{outline:none;border-color:#2d6a3f}
+:root{
+  --primary:#2d6a3f;--primary-light:#4a9a5e;--primary-dark:#1a4a2a;
+  --accent:#7cb87e;--bg:#f5f9f5;--card:#fff;
+  --text:#1a1a1a;--sub:#666;--border:#e0e8e0;
+  --danger:#e74c3c;--warn:#f39c12;
+  --tab-h:60px;--hdr-h:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;
+  background:var(--bg);color:var(--text);
+  max-width:420px;margin:0 auto;min-height:100vh;overflow-x:hidden;
+}
 
-/* モーダル */
-.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-end;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
-.modal-title{font-size:16px;font-weight:600;margin-bottom:16px}
+/* ── Header ── */
+.hdr{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:420px;height:var(--hdr-h);
+  background:var(--primary);color:#fff;
+  display:flex;align-items:center;padding:0 16px;
+  z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.hdr h1{font-size:18px;font-weight:700;flex:1;}
+.hdr-btn{
+  background:none;border:none;color:#fff;font-size:22px;
+  cursor:pointer;padding:8px;border-radius:50%;
+}
 
-/* 詳細モーダル */
-.detail-modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:420px;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
-.detail-header{position:sticky;top:0;background:#fff;border-bottom:0.5px solid #e0ded8;padding:16px 16px 12px;display:flex;align-items:center;gap:10px;z-index:10}
-.detail-header-title{flex:1;font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.detail-body{padding:16px;flex:1}
+/* ── Tabs ── */
+.tab-bar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:420px;height:var(--tab-h);
+  background:var(--card);display:flex;
+  border-top:1px solid var(--border);z-index:50;
+  box-shadow:0 -2px 8px rgba(0,0,0,.1);
+}
+.tab-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;cursor:pointer;
+  color:var(--sub);font-size:10px;padding:8px 0;
+  border:none;background:none;transition:color .2s;
+}
+.tab-item.active{color:var(--primary);}
+.tab-icon{font-size:22px;}
 
-/* 基本情報セクション */
-.info-section{background:#f9f9f7;border-radius:10px;padding:12px;margin-bottom:16px}
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px}
-.info-label{color:#888;flex-shrink:0;margin-right:8px}
-.info-value{color:#1a1a1a;text-align:right;flex:1}
+/* ── Content ── */
+.main{
+  padding-top:calc(var(--hdr-h) + 8px);
+  padding-bottom:calc(var(--tab-h) + 80px);
+  min-height:100vh;
+}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
 
-/* タイムライン */
-.timeline{position:relative}
-.timeline-entry{display:flex;gap:12px;margin-bottom:16px}
-.timeline-line-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
-.timeline-dot{width:12px;height:12px;border-radius:50%;background:#2d6a3f;flex-shrink:0;margin-top:4px}
-.timeline-dot.first{background:#4caf50;width:14px;height:14px}
-.timeline-vline{flex:1;width:2px;background:#e0ded8;margin-top:4px}
-.timeline-content{flex:1;padding-bottom:8px}
-.timeline-date{font-size:12px;color:#888;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.timeline-comment{font-size:13px;color:#444;margin-top:4px;line-height:1.5}
-.photo-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.photo-thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;border:0.5px solid #e0ded8;cursor:pointer}
-.photo-thumb-sm{width:48px;height:48px}
-.photo-thumb-wrap{position:relative;display:inline-block}
-.photo-thumb-remove{position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:#b91c1c;color:#fff;border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+/* ── Cards & Lists ── */
+.card{
+  background:var(--card);border-radius:12px;padding:16px;
+  margin:8px 12px;box-shadow:0 1px 4px rgba(0,0,0,.08);
+}
+.record-item{
+  background:var(--card);border-radius:12px;margin:8px 12px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+}
+.record-item:active{transform:scale(.98);}
+.record-item.completed{opacity:.6;}
+.record-item.overdue{border-left:4px solid var(--danger);}
 
-/* 追記フォーム */
-.add-log-section{border-top:0.5px solid #e0ded8;padding-top:16px;margin-top:4px}
-.add-log-toggle{width:100%;padding:10px;border-radius:10px;border:0.5px dashed #2d6a3f;background:#f0f8f2;color:#2d6a3f;font-size:14px;cursor:pointer;font-family:inherit;font-weight:500}
-.add-log-form{margin-top:12px}
+.ri-head{padding:12px 16px;display:flex;align-items:flex-start;gap:10px;}
+.ri-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.type-soil .ri-icon{background:#e8d5b7;}
+.type-plant .ri-icon{background:#d4edda;}
+.type-task .ri-icon{background:#d1ecf1;}
+.ri-info{flex:1;min-width:0;}
+.ri-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ri-meta{font-size:12px;color:var(--sub);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;}
+.ri-preview{padding:0 16px 12px;font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-/* ステータス選択 */
-.status-select-row{display:flex;gap:8px;flex-wrap:wrap}
-.status-radio-label{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:13px}
+/* ── Badges ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;}
+.b-soil{background:#e8d5b7;color:#8b6914;}
+.b-plant{background:#d4edda;color:#155724;}
+.b-task{background:#d1ecf1;color:#0c5460;}
+.b-new{background:#d4edda;color:#155724;}
+.b-update{background:#cce5ff;color:#004085;}
+.b-edit{background:#fff3cd;color:#856404;}
+.b-done{background:#d6d8d9;color:#383d41;}
+.b-overdue{background:#f8d7da;color:#721c24;}
+.b-vegetable{background:#fff3cd;color:#856404;}
+.b-flower{background:#f8d7da;color:#721c24;}
+.b-herb{background:#d4edda;color:#155724;}
+.b-tree{background:#c3e6cb;color:#1a4a2a;}
+.b-other{background:#e2e3e5;color:#383d41;}
+.overdue-txt{color:var(--danger)!important;font-weight:600;}
 
-/* 土素材リスト */
-.soil-items-list{margin-bottom:8px}
-.soil-item-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
-.soil-item-row input[type=text]{flex:2}
-.soil-item-row input[type=number]{flex:1;min-width:52px}
-.soil-item-row select{flex:1;min-width:56px}
-.soil-item-remove{background:none;border:none;color:#b91c1c;font-size:18px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;font-family:inherit}
-.soil-items-display{font-size:13px;color:#444;margin-top:4px}
-.soil-items-display li{list-style:none;padding:1px 0}
-.soil-items-display li::before{content:'· '}
+/* ── FAB ── */
+.fab{
+  position:fixed;
+  bottom:calc(var(--tab-h) + 16px);
+  right:max(16px,calc(50vw - 194px));
+  width:56px;height:56px;border-radius:50%;
+  background:var(--primary);color:#fff;font-size:28px;
+  border:none;cursor:pointer;
+  box-shadow:0 4px 12px rgba(45,106,63,.4);
+  display:flex;align-items:center;justify-content:center;
+  z-index:40;transition:transform .2s;
+}
+.fab:active{transform:scale(.92);}
 
-/* ライトボックス */
-.lightbox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;align-items:center;justify-content:center}
-.lightbox.open{display:flex}
-.lightbox img{max-width:94vw;max-height:88vh;border-radius:8px;object-fit:contain}
-.lightbox-close{position:fixed;top:16px;right:20px;color:#fff;font-size:32px;cursor:pointer;background:none;border:none;font-family:inherit}
+/* ── Modal / Bottom sheet ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:100;opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.overlay.active{opacity:1;pointer-events:all;}
+.sheet{
+  position:fixed;bottom:0;left:50%;
+  transform:translateX(-50%) translateY(100%);
+  width:100%;max-width:420px;
+  background:var(--card);border-radius:20px 20px 0 0;
+  z-index:101;
+  transition:transform .35s cubic-bezier(.32,.72,0,1);
+  max-height:92vh;display:flex;flex-direction:column;
+}
+.sheet.active{transform:translateX(-50%) translateY(0);}
+.sheet-handle{
+  width:36px;height:4px;background:#ddd;
+  border-radius:2px;margin:12px auto 0;flex-shrink:0;
+}
+.sheet-hdr{
+  padding:12px 16px 8px;display:flex;align-items:center;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.sheet-title{font-size:17px;font-weight:700;flex:1;}
+.sheet-close{background:none;border:none;font-size:24px;color:var(--sub);cursor:pointer;padding:4px;}
+.sheet-body{overflow-y:auto;flex:1;padding:16px;-webkit-overflow-scrolling:touch;}
 
-/* ゾーン選択 */
-.zone-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.zone-chip{padding:6px 12px;border-radius:20px;border:0.5px solid #ccc;background:#fff;font-size:13px;cursor:pointer;color:#666;font-family:inherit}
-.zone-chip.active{background:#2d6a3f;border-color:#2d6a3f;color:#fff;font-weight:500}
+/* ── Forms ── */
+.fg{margin-bottom:16px;}
+.flabel{display:block;font-size:13px;font-weight:600;color:var(--sub);margin-bottom:6px;}
+.finput,.fselect,.ftextarea{
+  width:100%;padding:10px 12px;
+  border:1.5px solid var(--border);border-radius:10px;
+  font-size:15px;font-family:inherit;color:var(--text);
+  background:var(--bg);outline:none;transition:border-color .2s;
+}
+.finput:focus,.fselect:focus,.ftextarea:focus{border-color:var(--primary);}
+.ftextarea{resize:none;min-height:80px;}
 
-/* 全体タブ */
-.filter-bar{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
-.filter-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.filter-chip{padding:5px 12px;border-radius:20px;border:0.5px solid #ccc;background:#fff;font-size:12px;cursor:pointer;color:#666;font-family:inherit}
-.filter-chip.active{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
-.filter-label{font-size:11px;color:#aaa;font-weight:600;white-space:nowrap}
-.all-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border-bottom:0.5px solid #e0ded8;cursor:pointer;transition:background .1s}
-.all-item:active{background:#f9f9f7}
-.all-item:last-child{border-bottom:none}
-.all-item-icon{font-size:20px;flex-shrink:0;margin-top:2px}
-.all-item-body{flex:1;min-width:0}
-.all-item-title{font-size:14px;font-weight:500}
-.all-item-meta{font-size:12px;color:#888;margin-top:3px;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
-.all-item-sub{font-size:13px;color:#666;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.all-item-log-count{font-size:11px;color:#aaa;margin-top:2px}
+.type-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.type-btn{
+  padding:12px 8px;border:2px solid var(--border);border-radius:12px;
+  background:var(--bg);cursor:pointer;text-align:center;
+  font-size:13px;font-family:inherit;transition:all .2s;
+}
+.type-btn .te{font-size:24px;display:block;margin-bottom:4px;}
+.type-btn.sel{border-color:var(--primary);background:#e8f5e9;color:var(--primary);}
 
-/* タスク */
-.task-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid #e0ded8;cursor:pointer}
-.task-item:last-child{border-bottom:none}
-.task-check{width:20px;height:20px;border-radius:50%;border:1.5px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;background:#fff}
-.task-check.done{background:#2d6a3f;border-color:#2d6a3f;color:#fff}
-.task-overdue{color:#b91c1c}
+.btn-p{
+  width:100%;padding:14px;background:var(--primary);color:#fff;
+  border:none;border-radius:12px;font-size:16px;font-weight:600;
+  font-family:inherit;cursor:pointer;margin-top:8px;transition:background .2s;
+}
+.btn-p:active{background:var(--primary-dark);}
+.btn-s{
+  width:100%;padding:12px;background:var(--bg);color:var(--primary);
+  border:2px solid var(--primary);border-radius:12px;
+  font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:8px;
+}
+.btn-d{
+  background:var(--danger);color:#fff;border:none;
+  border-radius:8px;padding:8px 14px;font-size:13px;font-family:inherit;cursor:pointer;
+}
+.btn-sm{
+  padding:6px 12px;border:1.5px solid var(--primary);border-radius:8px;
+  background:none;color:var(--primary);font-size:13px;font-family:inherit;cursor:pointer;
+}
 
-/* まとめ */
-.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.stat-card{background:#f5f5f0;border-radius:8px;padding:14px;text-align:center}
-.stat-num{font-size:24px;font-weight:600}
-.stat-lbl{font-size:12px;color:#888;margin-top:2px}
-.record-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid #e0ded8}
-.record-row:last-child{border-bottom:none}
-.export-row{display:flex;gap:8px;margin-top:8px}
-.section-title{font-size:12px;font-weight:600;color:#888;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
-.file-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:0.5px dashed #ccc;border-radius:8px;font-size:13px;cursor:pointer;color:#888;background:#f9f9f7;width:100%;justify-content:center;font-family:inherit}
+/* ── Zone tabs ── */
+.zone-tabs{
+  display:flex;overflow-x:auto;padding:8px 12px;gap:8px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.zone-tabs::-webkit-scrollbar{display:none;}
+.ztab{
+  flex-shrink:0;padding:6px 16px;border-radius:20px;
+  border:1.5px solid var(--border);background:var(--card);
+  font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all .2s;
+}
+.ztab.active{background:var(--primary);color:#fff;border-color:var(--primary);}
 
-.fab{position:fixed;bottom:24px;right:24px;width:54px;height:54px;border-radius:50%;background:#2d6a3f;color:#fff;font-size:26px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 16px rgba(45,106,63,0.35);z-index:50;font-family:inherit}
+/* ── Filter bar ── */
+.filter-bar{padding:8px 12px;display:flex;gap:8px;}
+.filter-bar select{
+  flex:1;padding:8px 10px;border:1.5px solid var(--border);
+  border-radius:10px;font-size:13px;background:var(--card);
+  font-family:inherit;outline:none;
+}
 
-/* カテゴリ選択 */
-.cat-select-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:8px 0 16px}
-.cat-select-btn{padding:18px 8px;border-radius:12px;border:0.5px solid #e0ded8;background:#f9f9f7;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px}
-.cat-select-btn:active{background:#e6f4ea;border-color:#2d6a3f}
-.cat-icon{font-size:24px}
+/* ── Timeline ── */
+.timeline{padding:0 12px 8px;}
+.tl-entry{position:relative;padding-left:28px;padding-bottom:20px;}
+.tl-entry::before{
+  content:'';position:absolute;left:10px;top:22px;bottom:0;
+  width:2px;background:var(--border);
+}
+.tl-entry:last-child::before{display:none;}
+.tl-dot{
+  position:absolute;left:4px;top:4px;width:14px;height:14px;
+  border-radius:50%;background:var(--primary);
+  border:2px solid var(--card);box-shadow:0 0 0 2px var(--primary);
+}
+.tl-card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.tl-date{font-size:12px;color:var(--sub);margin-bottom:6px;}
+.tl-comment{font-size:14px;line-height:1.5;white-space:pre-wrap;}
+.tl-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px;}
+.tl-photo{aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;width:100%;}
+.tl-materials{margin-top:8px;padding:8px;background:var(--bg);border-radius:8px;}
+.mat-item{font-size:13px;color:var(--sub);padding:2px 0;}
+
+/* ── Material rows ── */
+.mat-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;}
+.mat-row .finput{flex:2;padding:8px 10px;font-size:13px;}
+.mat-row .finput.amt{flex:1;}
+.mat-row .fselect{flex:1;padding:8px 6px;font-size:12px;}
+.rm-mat{background:none;border:none;color:var(--danger);font-size:20px;cursor:pointer;flex-shrink:0;padding:0 4px;}
+
+/* ── Photo upload ── */
+.photo-drop{
+  border:2px dashed var(--border);border-radius:12px;
+  padding:20px;text-align:center;cursor:pointer;
+  color:var(--sub);font-size:14px;position:relative;
+}
+.photo-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;}
+.photo-item{position:relative;aspect-ratio:1;}
+.photo-item img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
+.rm-photo{
+  position:absolute;top:-6px;right:-6px;width:22px;height:22px;
+  border-radius:50%;background:var(--danger);color:#fff;
+  border:none;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ── Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 12px;}
+.stat-card{background:var(--card);border-radius:12px;padding:16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.stat-n{font-size:32px;font-weight:700;color:var(--primary);}
+.stat-l{font-size:12px;color:var(--sub);margin-top:4px;}
+
+/* ── Section header ── */
+.sec-hdr{font-size:13px;font-weight:700;color:var(--sub);padding:12px 16px 4px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* ── Task ── */
+.task-item{background:var(--card);border-radius:12px;margin:8px 12px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;}
+.task-item.overdue{border-left:4px solid var(--danger);}
+.task-item.done-task{opacity:.6;}
+.task-inner{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.task-chk{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;cursor:pointer;transition:all .2s;
+}
+.task-chk.done{background:var(--primary);border-color:var(--primary);color:#fff;}
+
+/* ── Zone list ── */
+.zone-list{margin:8px 12px;}
+.zone-li{
+  background:var(--card);border-radius:10px;padding:12px 16px;
+  margin-bottom:6px;display:flex;align-items:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+.zone-li span{flex:1;font-size:15px;}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:48px 24px;color:var(--sub);}
+.empty .ei{font-size:48px;margin-bottom:12px;}
+.empty p{font-size:14px;}
+
+/* ── Image viewer ── */
+.img-viewer{
+  position:fixed;inset:0;background:rgba(0,0,0,.95);
+  z-index:200;display:none;align-items:center;justify-content:center;
+}
+.img-viewer img{max-width:100%;max-height:100%;object-fit:contain;}
+.iv-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer;}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:calc(var(--tab-h) + 80px);
+  left:50%;transform:translateX(-50%) translateY(20px);
+  background:#333;color:#fff;padding:10px 20px;
+  border-radius:20px;font-size:14px;z-index:300;
+  opacity:0;transition:all .3s;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Misc ── */
+.spinner{
+  display:inline-block;width:20px;height:20px;
+  border:2px solid var(--border);border-top-color:var(--primary);
+  border-radius:50%;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading{display:flex;align-items:center;justify-content:center;padding:20px;gap:8px;color:var(--sub);font-size:14px;}
+.sync-status{text-align:center;font-size:12px;color:var(--sub);padding:6px 0;}
+.add-tl-btn{
+  display:block;width:calc(100% - 24px);margin:8px 12px;padding:12px;
+  border:2px dashed var(--primary);border-radius:12px;
+  background:none;color:var(--primary);font-size:14px;font-weight:600;
+  font-family:inherit;cursor:pointer;text-align:center;
+}
+.del-btn{width:100%;background:var(--danger);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-family:inherit;cursor:pointer;margin-top:8px;}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <h1>🌱 庭DIY管理</h1>
-    <button class="btn btn-sm" onclick="openZoneManager()">⚙ ゾーン</button>
+
+<header class="hdr">
+  <h1>🌿 庭DIY管理</h1>
+  <button class="hdr-btn" id="syncBtn" title="データを取得">☁️</button>
+</header>
+
+<main class="main">
+  <!-- 全体 -->
+  <div class="tab-panel active" id="panel-all">
+    <div class="filter-bar">
+      <select id="filterType">
+        <option value="">すべてのカテゴリ</option>
+        <option value="soil">土づくり</option>
+        <option value="plant">植物</option>
+        <option value="task">タスク</option>
+      </select>
+      <select id="filterZone"><option value="">すべてのゾーン</option></select>
+    </div>
+    <div id="allList"></div>
   </div>
-  <div class="tab-bar">
-    <button class="tab active" onclick="switchTab('all',this)">全体</button>
-    <button class="tab" onclick="switchTab('soil',this)">土づくり</button>
-    <button class="tab" onclick="switchTab('plants',this)">植物</button>
-    <button class="tab" onclick="switchTab('tasks',this)">タスク</button>
-    <button class="tab" onclick="switchTab('summary',this)">まとめ</button>
+
+  <!-- 土づくり -->
+  <div class="tab-panel" id="panel-soil">
+    <div class="zone-tabs" id="soilZoneTabs"></div>
+    <div id="soilList"></div>
   </div>
-  <div id="tab-all"></div>
-  <div id="tab-soil" class="section" style="display:none"></div>
-  <div id="tab-plants" class="section" style="display:none"></div>
-  <div id="tab-tasks" class="section" style="display:none"></div>
-  <div id="tab-summary" class="section" style="display:none"></div>
-  <button class="fab" onclick="openAddModal()">＋</button>
+
+  <!-- 植物 -->
+  <div class="tab-panel" id="panel-plant">
+    <div class="zone-tabs" id="plantZoneTabs"></div>
+    <div id="plantList"></div>
+  </div>
+
+  <!-- タスク -->
+  <div class="tab-panel" id="panel-task">
+    <div id="taskList"></div>
+  </div>
+
+  <!-- まとめ -->
+  <div class="tab-panel" id="panel-summary">
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="sec-hdr">ゾーン管理</div>
+    <div class="zone-list" id="zoneList"></div>
+    <div style="margin:0 12px 4px;">
+      <button class="btn-s" onclick="showZoneSheet()">＋ ゾーンを追加</button>
+    </div>
+
+    <div class="sec-hdr">GitHub 同期設定</div>
+    <div class="card">
+      <div class="fg">
+        <label class="flabel">Personal Access Token</label>
+        <input type="password" class="finput" id="ghToken" placeholder="ghp_...">
+      </div>
+      <div class="fg">
+        <label class="flabel">リポジトリ (owner/repo)</label>
+        <input type="text" class="finput" id="ghRepo" placeholder="username/garden-data">
+      </div>
+      <div class="fg">
+        <label class="flabel">ファイルパス</label>
+        <input type="text" class="finput" id="ghPath" value="garden-data.json">
+      </div>
+      <button class="btn-p" onclick="saveGhSettings()">設定を保存</button>
+      <button class="btn-s" onclick="syncToGh()">今すぐ同期（アップロード）</button>
+      <button class="btn-s" onclick="syncFromGh()">データを取得（ダウンロード）</button>
+      <div class="sync-status" id="syncStatus"></div>
+    </div>
+
+    <div class="sec-hdr">バックアップ</div>
+    <div class="card">
+      <button class="btn-s" onclick="exportJSON()" style="margin-top:0">JSONエクスポート</button>
+      <label style="display:block;margin-top:8px;position:relative;">
+        <span class="btn-s" style="display:block;text-align:center;cursor:pointer;">JSONインポート</span>
+        <input type="file" accept=".json" style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="importJSON(event)">
+      </label>
+    </div>
+    <div style="height:24px;"></div>
+  </div>
+</main>
+
+<nav class="tab-bar">
+  <button class="tab-item active" data-tab="all"><span class="tab-icon">📋</span><span>全体</span></button>
+  <button class="tab-item" data-tab="soil"><span class="tab-icon">🪨</span><span>土づくり</span></button>
+  <button class="tab-item" data-tab="plant"><span class="tab-icon">🌱</span><span>植物</span></button>
+  <button class="tab-item" data-tab="task"><span class="tab-icon">✅</span><span>タスク</span></button>
+  <button class="tab-item" data-tab="summary"><span class="tab-icon">📊</span><span>まとめ</span></button>
+</nav>
+
+<button class="fab" id="fabBtn">＋</button>
+<div class="toast" id="toast"></div>
+
+<!-- ── Add Record Sheet ── -->
+<div class="overlay" id="addOverlay"></div>
+<div class="sheet" id="addSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-hdr">
+    <span class="sheet-title">新規追加</span>
+    <button class="sheet-close" onclick="closeSheet('add')">×</button>
+  </div>
+  <div class="sheet-body" id="addBody"></div>
 </div>
 
-<!-- 汎用モーダル -->
-<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
-  <div class="modal" id="modal-content"></div>
+<!-- ── Detail Sheet ── -->
+<div class="overlay" id="detailOverlay"></div>
+<div class="sheet" id="detailSheet" style="max-height:96vh;">
+  <div class="sheet-handle"></div>
+  <div class="sheet-hdr">
+    <span class="sheet-title" id="detailTitle"></span>
+    <button class="sheet-close" onclick="closeSheet('detail')">×</button>
+  </div>
+  <div class="sheet-body" id="detailBody"></div>
 </div>
 
-<!-- 詳細モーダル（タイムライン） -->
-<div class="modal-overlay" id="detail-overlay" onclick="handleDetailOverlayClick(event)">
-  <div class="detail-modal" id="detail-content"></div>
+<!-- ── Timeline Entry Sheet ── -->
+<div class="overlay" id="tlOverlay"></div>
+<div class="sheet" id="tlSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-hdr">
+    <span class="sheet-title">追記する</span>
+    <button class="sheet-close" onclick="closeSheet('tl')">×</button>
+  </div>
+  <div class="sheet-body" id="tlBody"></div>
 </div>
 
-<!-- ライトボックス -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="" alt="">
+<!-- ── Zone Sheet ── -->
+<div class="overlay" id="zoneOverlay"></div>
+<div class="sheet" id="zoneSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-hdr">
+    <span class="sheet-title">ゾーンを追加</span>
+    <button class="sheet-close" onclick="closeSheet('zone')">×</button>
+  </div>
+  <div class="sheet-body">
+    <div class="fg">
+      <label class="flabel">ゾーン名</label>
+      <input type="text" class="finput" id="newZoneName" placeholder="例: ロックガーデン">
+    </div>
+    <button class="btn-p" onclick="addZone()">追加</button>
+  </div>
 </div>
 
-<input type="file" id="file-input" accept="image/*" style="display:none">
-<input type="file" id="json-import" accept=".json" style="display:none" onchange="importJSON(event)">
+<!-- ── Image viewer ── -->
+<div class="img-viewer" id="imgViewer" onclick="closeViewer()">
+  <button class="iv-close" onclick="closeViewer()">×</button>
+  <img id="viewerImg" src="" alt="">
+</div>
 
 <script>
-// ===================== STATE =====================
-let state = JSON.parse(localStorage.getItem('garden_diy')||'null') || {
-  zones: ['ロックガーデン','フロントガーデン','菜園','その他'],
-  activeZone: 'ロックガーデン',
-  soilRecords: [], plants: [], tasks: [], photoStore: {}
-};
-let currentTab = 'all';
-let filterCat = 'all';
-let filterZone = 'all';
-let pendingPhotoKeys = [];
-let photoPreviewTarget = '';
-let soilItems = [];
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let S = { zones:[], records:[], gh:{} };
+let curTab = 'all';
+let soilZone = 'all';
+let plantZone = 'all';
+let addPhotos = [];   // [{id,blob,url}]
+let tlPhotos  = [];
+let curRecId  = null;
 
-function save() { localStorage.setItem('garden_diy', JSON.stringify(state)); }
-
-// ===================== 互換性ヘルパー =====================
-// photoKey(旧) → photoKeys(新)
-function normPhotos(r) {
-  if (!r.photoKeys) r.photoKeys = r.photoKey ? [r.photoKey] : [];
-  return r;
-}
-// logsがなければ既存データから初回ログを生成
-function normLogs(r, type) {
-  if (r.logs) return r;
-  if (type === 'soil') {
-    const items = r.items || [{type:r.soilType||'不明',amount:r.amount||0,unit:'kg'}];
-    r.logs = [{
-      date: r.date,
-      status: r.status || '新規',
-      comment: r.comment || '',
-      photoKeys: r.photoKeys || [],
-      soilItems: items
-    }];
-  } else if (type === 'plant') {
-    r.logs = [{
-      date: r.plantedDate,
-      status: r.status || '新規',
-      comment: r.notes || '',
-      photoKeys: r.photoKeys || []
-    }];
-  } else if (type === 'task') {
-    r.logs = [{
-      date: r.dueDate || r.createdDate || new Date().toISOString().slice(0,10),
-      status: r.status || '新規',
-      comment: r.notes || '',
-      photoKeys: []
-    }];
+// ═══════════════════════════════════════════
+// PHOTO DB (IndexedDB)
+// ═══════════════════════════════════════════
+const PDB = (() => {
+  let db = null;
+  function open() {
+    return new Promise((res,rej) => {
+      const r = indexedDB.open('GardenPhotoDB',1);
+      r.onupgradeneeded = e => e.target.result.createObjectStore('photos');
+      r.onsuccess = e => { db = e.target.result; res(); };
+      r.onerror = () => rej(r.error);
+    });
   }
-  return r;
+  function put(id, blob) {
+    return new Promise((res,rej) => {
+      const tx = db.transaction('photos','readwrite');
+      tx.objectStore('photos').put(blob, id);
+      tx.oncomplete = res; tx.onerror = ()=>rej(tx.error);
+    });
+  }
+  function url(id) {
+    return new Promise((res,rej) => {
+      const tx = db.transaction('photos','readonly');
+      const r = tx.objectStore('photos').get(id);
+      r.onsuccess = () => res(r.result ? URL.createObjectURL(r.result) : null);
+      r.onerror = ()=>rej(r.error);
+    });
+  }
+  function del(id) {
+    return new Promise((res,rej) => {
+      const tx = db.transaction('photos','readwrite');
+      tx.objectStore('photos').delete(id);
+      tx.oncomplete = res; tx.onerror = ()=>rej(tx.error);
+    });
+  }
+  function getAllKeys() {
+    return new Promise((res,rej) => {
+      const tx = db.transaction('photos','readonly');
+      const r = tx.objectStore('photos').getAllKeys();
+      r.onsuccess = () => res(r.result);
+      r.onerror = ()=>rej(r.error);
+    });
+  }
+  return {open,put,url,del,getAllKeys};
+})();
+
+// ═══════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════
+function save() {
+  localStorage.setItem('garden_zones',   JSON.stringify(S.zones));
+  localStorage.setItem('garden_records', JSON.stringify(S.records));
+}
+function load() {
+  try { S.zones   = JSON.parse(localStorage.getItem('garden_zones'))   || defZones(); } catch { S.zones   = defZones(); }
+  try { S.records = JSON.parse(localStorage.getItem('garden_records')) || []; }          catch { S.records = []; }
+  try { S.gh      = JSON.parse(localStorage.getItem('garden_gh'))      || {}; }          catch { S.gh = {}; }
+}
+function defZones() {
+  return [
+    {id:'z1',name:'ロックガーデン'},
+    {id:'z2',name:'フロントガーデン'},
+    {id:'z3',name:'菜園'},
+    {id:'z4',name:'その他'},
+  ];
 }
 
-// ===================== タブ切り替え =====================
-function switchTab(tab, el) {
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  ['all','soil','plants','tasks','summary'].forEach(t=>{
-    document.getElementById('tab-'+t).style.display = t===tab?'':'none';
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function today() { return new Date().toISOString().slice(0,10); }
+function fmtDate(d) {
+  if(!d) return '';
+  const [y,m,dy] = d.split('-');
+  return `${y}年${+m}月${+dy}日`;
+}
+function isOverdue(d) { return !!d && d < today(); }
+function zoneName(id) { return (S.zones.find(z=>z.id===id)||{name:id}).name; }
+function typeLabel(t) { return {soil:'土づくり',plant:'植物',task:'タスク'}[t]||t; }
+function typeIcon(t)  { return {soil:'🪨',plant:'🌱',task:'✅'}[t]||'📝'; }
+function plantLabel(t){ return {vegetable:'野菜',flower:'花',herb:'ハーブ',tree:'樹木',other:'その他'}[t]||t; }
+function statusLabel(s){ return {new:'新規',update:'追記',edit:'修正',done:'完了'}[s]||s; }
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════
+// SHEETS
+// ═══════════════════════════════════════════
+function openSheet(n) {
+  document.getElementById(n+'Overlay').classList.add('active');
+  document.getElementById(n+'Sheet').classList.add('active');
+}
+function closeSheet(n) {
+  document.getElementById(n+'Overlay').classList.remove('active');
+  document.getElementById(n+'Sheet').classList.remove('active');
+}
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function switchTab(tab) {
+  curTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  renderTab();
+}
+function renderTab() {
+  ({all:renderAll, soil:renderSoil, plant:renderPlant, task:renderTask, summary:renderSummary})[curTab]?.();
+}
+
+// ═══════════════════════════════════════════
+// RENDER HELPERS
+// ═══════════════════════════════════════════
+function recordHTML(r) {
+  const last = r.timeline?.at(-1);
+  const lastDate = last?.date || r.createdAt;
+  const overdue = r.type==='task' && !r.completed && isOverdue(r.dueDate);
+
+  let meta = `<span>${esc(zoneName(r.zoneId))}</span>`;
+  if(r.type==='plant' && r.plantType)
+    meta += `<span class="badge b-${r.plantType}">${plantLabel(r.plantType)}</span>`;
+  if(r.type==='task' && r.dueDate)
+    meta += `<span class="${overdue?'overdue-txt':''}">期日: ${fmtDate(r.dueDate)}${overdue?' ⚠️':''}</span>`;
+  meta += `<span>${fmtDate(lastDate)}</span>`;
+
+  const preview = last?.comment
+    ? `<div class="ri-preview">${esc(last.comment)}</div>` : '';
+
+  return `<div class="record-item type-${r.type}${r.completed?' completed':''}${overdue?' overdue':''}" data-id="${r.id}">
+    <div class="ri-head">
+      <div class="ri-icon">${typeIcon(r.type)}</div>
+      <div class="ri-info">
+        <div class="ri-title">${esc(r.title)}</div>
+        <div class="ri-meta">${meta}</div>
+      </div>
+      <span class="badge b-${r.type}">${typeLabel(r.type)}</span>
+    </div>
+    ${preview}
+  </div>`;
+}
+
+function attachClicks(container) {
+  container.querySelectorAll('.record-item').forEach(el =>
+    el.addEventListener('click', ()=>openDetail(el.dataset.id))
+  );
+}
+
+function sortByLatest(arr) {
+  return [...arr].sort((a,b)=>{
+    const ad = a.timeline?.at(-1)?.date || a.createdAt;
+    const bd = b.timeline?.at(-1)?.date || b.createdAt;
+    return bd.localeCompare(ad);
   });
-  render();
 }
 
-function render() {
-  if (currentTab==='all') renderAll();
-  else if (currentTab==='soil') renderSoil();
-  else if (currentTab==='plants') renderPlants();
-  else if (currentTab==='tasks') renderTasks();
-  else renderSummary();
+function emptyHTML(icon, msg) {
+  return `<div class="empty"><div class="ei">${icon}</div><p>${msg}</p></div>`;
 }
 
-function setZone(z) { state.activeZone=z; save(); render(); }
-
-function renderZoneChips() {
-  return state.zones.map(z=>
-    `<button class="zone-chip ${z===state.activeZone?'active':''}" onclick="setZone(${JSON.stringify(z)})">${z}</button>`
-  ).join('');
-}
-
-const STATUS_LIST = ['新規','追記','修正','完了'];
-const STATUS_CLS = {新規:'status-新規',追記:'status-追記',修正:'status-修正',完了:'status-完了'};
-const TYPE_COLOR = {花:'badge-pink',野菜:'badge-green',ハーブ:'badge-amber',樹木:'badge-blue',その他:'badge-gray'};
-
-function statusBadge(s) {
-  if (!s) return '';
-  return `<span class="badge ${STATUS_CLS[s]||'badge-gray'}">${s}</span>`;
-}
-
-function latestStatus(r) {
-  if (!r.logs||!r.logs.length) return r.status||'新規';
-  return r.logs[r.logs.length-1].status || r.status || '新規';
-}
-
-// ===================== 全体タブ =====================
+// ═══════════════════════════════════════════
+// TAB: ALL
+// ═══════════════════════════════════════════
 function renderAll() {
-  const el = document.getElementById('tab-all');
-  const today = new Date().toISOString().slice(0,10);
+  const tf = document.getElementById('filterType').value;
+  const zf = document.getElementById('filterZone');
+  const zv = zf.value;
 
-  const zoneChips = ['all',...state.zones].map(z=>
-    `<button class="filter-chip ${filterZone===z?'active':''}" onclick="setFilterZone(${JSON.stringify(z)})">${z==='all'?'すべて':z}</button>`
+  zf.innerHTML = '<option value="">すべてのゾーン</option>' +
+    S.zones.map(z=>`<option value="${z.id}"${z.id===zv?' selected':''}>${esc(z.name)}</option>`).join('');
+
+  let recs = S.records;
+  if(tf) recs = recs.filter(r=>r.type===tf);
+  if(zv) recs = recs.filter(r=>r.zoneId===zv);
+  recs = sortByLatest(recs);
+
+  const el = document.getElementById('allList');
+  el.innerHTML = recs.length ? recs.map(recordHTML).join('') : emptyHTML('🌱','記録がありません<br>＋ボタンで追加しましょう');
+  attachClicks(el);
+}
+
+// ═══════════════════════════════════════════
+// TAB: SOIL
+// ═══════════════════════════════════════════
+function renderSoil() {
+  renderZoneTabs('soilZoneTabs', soilZone, z=>{ soilZone=z; renderSoil(); });
+  const recs = sortByLatest(S.records.filter(r=>r.type==='soil'&&(soilZone==='all'||r.zoneId===soilZone)));
+  const el = document.getElementById('soilList');
+  el.innerHTML = recs.length ? recs.map(recordHTML).join('') : emptyHTML('🪨','土づくりの記録がありません');
+  attachClicks(el);
+}
+
+// ═══════════════════════════════════════════
+// TAB: PLANT
+// ═══════════════════════════════════════════
+function renderPlant() {
+  renderZoneTabs('plantZoneTabs', plantZone, z=>{ plantZone=z; renderPlant(); });
+  const recs = sortByLatest(S.records.filter(r=>r.type==='plant'&&(plantZone==='all'||r.zoneId===plantZone)));
+  const el = document.getElementById('plantList');
+  el.innerHTML = recs.length ? recs.map(recordHTML).join('') : emptyHTML('🌱','植物の記録がありません');
+  attachClicks(el);
+}
+
+// ═══════════════════════════════════════════
+// TAB: TASK
+// ═══════════════════════════════════════════
+function renderTask() {
+  const pending = S.records.filter(r=>r.type==='task'&&!r.completed)
+    .sort((a,b)=>(a.dueDate||'9999').localeCompare(b.dueDate||'9999'));
+  const done = S.records.filter(r=>r.type==='task'&&r.completed)
+    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
+
+  const el = document.getElementById('taskList');
+  if(!pending.length && !done.length) {
+    el.innerHTML = emptyHTML('✅','タスクがありません'); return;
+  }
+  let h = '';
+  if(pending.length) h += `<div class="sec-hdr">未完了 (${pending.length})</div>`+pending.map(taskHTML).join('');
+  if(done.length)    h += `<div class="sec-hdr">完了 (${done.length})</div>`+done.map(taskHTML).join('');
+  el.innerHTML = h;
+
+  el.querySelectorAll('.task-chk').forEach(btn =>
+    btn.addEventListener('click', e=>{ e.stopPropagation(); toggleTask(btn.dataset.id); })
+  );
+  el.querySelectorAll('.task-inner').forEach(btn =>
+    btn.addEventListener('click', ()=>openDetail(btn.dataset.id))
+  );
+}
+
+function taskHTML(r) {
+  const ov = !r.completed && isOverdue(r.dueDate);
+  return `<div class="task-item${ov?' overdue':''}${r.completed?' done-task':''}">
+    <div class="task-inner" data-id="${r.id}">
+      <div class="task-chk${r.completed?' done':''}" data-id="${r.id}">${r.completed?'✓':''}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="ri-title">${esc(r.title)}</div>
+        <div class="ri-meta">
+          <span>${esc(zoneName(r.zoneId))}</span>
+          ${r.dueDate?`<span class="${ov?'overdue-txt':''}">期日: ${fmtDate(r.dueDate)}${ov?' ⚠️':''}</span>`:''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleTask(id) {
+  const r = S.records.find(r=>r.id===id); if(!r) return;
+  r.completed = !r.completed;
+  (r.timeline=r.timeline||[]).push({
+    id:uid(), date:today(),
+    status: r.completed?'done':'update',
+    comment: r.completed?'完了にしました':'未完了に戻しました',
+    photoIds:[]
+  });
+  save(); renderTask();
+}
+
+// ═══════════════════════════════════════════
+// TAB: SUMMARY
+// ═══════════════════════════════════════════
+function renderSummary() {
+  const plants  = S.records.filter(r=>r.type==='plant').length;
+  const pending = S.records.filter(r=>r.type==='task'&&!r.completed).length;
+  const ov      = S.records.filter(r=>r.type==='task'&&!r.completed&&isOverdue(r.dueDate)).length;
+  const soil    = S.records.filter(r=>r.type==='soil').length;
+
+  document.getElementById('statsGrid').innerHTML = [
+    [S.zones.length,'ゾーン数'],
+    [plants,'植物数'],
+    [pending,'未完了タスク'],
+    [ov,'期限超過',ov>0],
+    [soil,'土づくり記録'],
+    [S.records.length,'総記録数'],
+  ].map(([n,l,red])=>`<div class="stat-card"><div class="stat-n"${red?` style="color:var(--danger)"`:''}>${n}</div><div class="stat-l">${l}</div></div>`).join('');
+
+  document.getElementById('zoneList').innerHTML = S.zones.map(z=>
+    `<div class="zone-li"><span>🏡 ${esc(z.name)}</span><button class="btn-d" onclick="deleteZone('${z.id}')">削除</button></div>`
   ).join('');
 
-  const filterHtml = `<div class="filter-bar">
-    <div class="filter-row">
-      <span class="filter-label">種別</span>
-      <button class="filter-chip ${filterCat==='all'?'active':''}" onclick="setFilterCat('all')">すべて</button>
-      <button class="filter-chip ${filterCat==='soil'?'active':''}" onclick="setFilterCat('soil')">🌱 土づくり</button>
-      <button class="filter-chip ${filterCat==='plant'?'active':''}" onclick="setFilterCat('plant')">🌿 植物</button>
-      <button class="filter-chip ${filterCat==='task'?'active':''}" onclick="setFilterCat('task')">✅ タスク</button>
+  document.getElementById('ghToken').value = S.gh.token||'';
+  document.getElementById('ghRepo').value  = S.gh.repo||'';
+  document.getElementById('ghPath').value  = S.gh.path||'garden-data.json';
+}
+
+// ═══════════════════════════════════════════
+// ZONE TABS
+// ═══════════════════════════════════════════
+function renderZoneTabs(cid, active, onChange) {
+  const el = document.getElementById(cid);
+  el.innerHTML = [{id:'all',name:'すべて'},...S.zones].map(z=>
+    `<button class="ztab${active===z.id?' active':''}" data-z="${z.id}">${esc(z.name)}</button>`
+  ).join('');
+  el.querySelectorAll('.ztab').forEach(b=>b.addEventListener('click',()=>onChange(b.dataset.z)));
+}
+
+// ═══════════════════════════════════════════
+// ZONE MANAGEMENT
+// ═══════════════════════════════════════════
+function showZoneSheet() { document.getElementById('newZoneName').value=''; openSheet('zone'); }
+function addZone() {
+  const name = document.getElementById('newZoneName').value.trim();
+  if(!name){ toast('ゾーン名を入力してください'); return; }
+  S.zones.push({id:uid(),name});
+  save(); closeSheet('zone'); renderSummary(); toast('ゾーンを追加しました ✓');
+}
+function deleteZone(id) {
+  const z = S.zones.find(z=>z.id===id); if(!z) return;
+  if(!confirm(`「${z.name}」を削除しますか？\nこのゾーンの記録は先頭ゾーンに移動します。`)) return;
+  S.zones = S.zones.filter(z=>z.id!==id);
+  const fallback = S.zones[0]?.id||'other';
+  S.records.forEach(r=>{ if(r.zoneId===id) r.zoneId=fallback; });
+  save(); renderSummary(); toast('削除しました');
+}
+
+// ═══════════════════════════════════════════
+// ADD RECORD
+// ═══════════════════════════════════════════
+function showAddSheet(selType) {
+  addPhotos = [];
+  const type = selType || 'plant';
+  const zoneOpts = S.zones.map(z=>`<option value="${z.id}">${esc(z.name)}</option>`).join('');
+
+  let specific = '';
+  if(type==='soil') {
+    specific = `
+      <div class="fg">
+        <label class="flabel">タイトル（任意）</label>
+        <input type="text" class="finput" id="aTitle" placeholder="例: 花壇の土改良">
+      </div>
+      <div class="fg">
+        <label class="flabel">使用した土・資材</label>
+        <div id="matCont"></div>
+        <button type="button" class="btn-sm" id="addMatBtn" style="margin-top:6px">＋ 資材を追加</button>
+      </div>`;
+  } else if(type==='plant') {
+    specific = `
+      <div class="fg">
+        <label class="flabel">植物名 *</label>
+        <input type="text" class="finput" id="aTitle" placeholder="例: 万願寺唐辛子">
+      </div>
+      <div class="fg">
+        <label class="flabel">種類</label>
+        <select class="fselect" id="aPlantType">
+          <option value="vegetable">野菜</option>
+          <option value="flower">花</option>
+          <option value="herb">ハーブ</option>
+          <option value="tree">樹木</option>
+          <option value="other">その他</option>
+        </select>
+      </div>`;
+  } else if(type==='task') {
+    specific = `
+      <div class="fg">
+        <label class="flabel">タスク名 *</label>
+        <input type="text" class="finput" id="aTitle" placeholder="例: 追肥、水やり、剪定">
+      </div>
+      <div class="fg">
+        <label class="flabel">期日</label>
+        <input type="date" class="finput" id="aDue">
+      </div>`;
+  }
+
+  document.getElementById('addBody').innerHTML = `
+    <div class="type-sel">
+      ${['soil','plant','task'].map(t=>`
+        <button class="type-btn${t===type?' sel':''}" data-type="${t}">
+          <span class="te">${typeIcon(t)}</span>${typeLabel(t)}
+        </button>`).join('')}
     </div>
-    <div class="filter-row"><span class="filter-label">ゾーン</span>${zoneChips}</div>
+    <div class="fg">
+      <label class="flabel">ゾーン</label>
+      <select class="fselect" id="aZone">${zoneOpts}</select>
+    </div>
+    ${specific}
+    <div class="fg">
+      <label class="flabel">日付</label>
+      <input type="date" class="finput" id="aDate" value="${today()}">
+    </div>
+    <div class="fg">
+      <label class="flabel">コメント</label>
+      <textarea class="ftextarea" id="aComment" placeholder="メモ、観察記録など..."></textarea>
+    </div>
+    <div class="fg">
+      <label class="flabel">写真</label>
+      <div class="photo-drop">📷 タップして写真を追加<input type="file" accept="image/*" multiple id="aPhotoIn"></div>
+      <div class="photo-grid" id="aPhotoGrid"></div>
+    </div>
+    <button class="btn-p" id="saveBtn">保存</button>
+  `;
+
+  // type buttons
+  document.querySelectorAll('#addBody .type-btn').forEach(b=>
+    b.addEventListener('click',()=>showAddSheet(b.dataset.type))
+  );
+  // materials
+  const mc = document.getElementById('matCont');
+  const amb = document.getElementById('addMatBtn');
+  if(mc){ addMatRow(mc); amb.addEventListener('click',()=>addMatRow(mc)); }
+  // photos
+  document.getElementById('aPhotoIn').addEventListener('change', e=>handlePhotos(e,addPhotos,'aPhotoGrid',addPhotos));
+  // save
+  document.getElementById('saveBtn').addEventListener('click', saveRecord);
+  openSheet('add');
+}
+
+function matRowHTML() {
+  return `<div class="mat-row">
+    <input type="text" class="finput" placeholder="種類（腐葉土など）" data-f="type">
+    <input type="text" class="finput amt" placeholder="量" data-f="amount">
+    <select class="fselect" data-f="unit">
+      <option>kg</option><option>L</option><option>袋</option><option>適量</option>
+    </select>
+    <button class="rm-mat" onclick="this.parentElement.remove()">×</button>
   </div>`;
+}
+function addMatRow(container) { container.insertAdjacentHTML('beforeend',matRowHTML()); }
 
-  let items = [];
-  if (filterCat==='all'||filterCat==='soil') {
-    state.soilRecords.forEach((r,idx)=>{
-      normPhotos(r); normLogs(r,'soil');
-      if (filterZone!=='all'&&r.zone!==filterZone) return;
-      items.push({type:'soil',date:r.date,data:r,idx});
+async function handlePhotos(e, photosArr, gridId) {
+  for(const file of e.target.files) {
+    const id = uid();
+    const url = URL.createObjectURL(file);
+    photosArr.push({id,blob:file,url});
+    await PDB.put(id,file);
+  }
+  renderPhotoGrid(gridId, photosArr);
+  e.target.value='';
+}
+
+function renderPhotoGrid(gridId, arr) {
+  const el = document.getElementById(gridId); if(!el) return;
+  el.innerHTML = arr.map(p=>`
+    <div class="photo-item">
+      <img src="${p.url}" alt="">
+      <button class="rm-photo" data-pid="${p.id}">×</button>
+    </div>`).join('');
+  el.querySelectorAll('.rm-photo').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const idx = arr.findIndex(p=>p.id===b.dataset.pid);
+      if(idx>=0){ PDB.del(arr[idx].id); arr.splice(idx,1); renderPhotoGrid(gridId,arr); }
     });
-  }
-  if (filterCat==='all'||filterCat==='plant') {
-    state.plants.forEach((r,idx)=>{
-      normPhotos(r); normLogs(r,'plant');
-      if (filterZone!=='all'&&r.zone!==filterZone) return;
-      items.push({type:'plant',date:r.plantedDate,data:r,idx});
-    });
-  }
-  if (filterCat==='all'||filterCat==='task') {
-    state.tasks.forEach((r,idx)=>{
-      normLogs(r,'task');
-      if (filterZone!=='all'&&r.zone!==filterZone) return;
-      items.push({type:'task',date:r.dueDate||'',data:r,idx});
-    });
-  }
-  items.sort((a,b)=>b.date.localeCompare(a.date));
+  });
+}
 
-  if (!items.length) {
-    el.innerHTML = filterHtml + '<p style="text-align:center;padding:40px;color:#aaa;font-size:14px">該当するデータがありません</p>';
-    return;
-  }
+function getMats(containerId) {
+  return Array.from(document.querySelectorAll(`#${containerId} .mat-row`)).map(row=>({
+    type:   row.querySelector('[data-f="type"]').value.trim(),
+    amount: row.querySelector('[data-f="amount"]').value.trim(),
+    unit:   row.querySelector('[data-f="unit"]').value,
+  })).filter(m=>m.type);
+}
 
-  let listHtml = '<div class="card" style="margin:0 12px 12px;padding:0">';
-  items.forEach(item => {
-    const r = item.data;
-    const logCount = (r.logs||[]).length;
-    const logLabel = logCount > 1 ? `<span class="all-item-log-count">📝 ${logCount}件の記録</span>` : '';
-    const latestSt = latestStatus(r);
-    const thumb = (r.photoKeys&&r.photoKeys.length&&state.photoStore[r.photoKeys[0]])
-      ? `<img class="photo-thumb photo-thumb-sm" src="${state.photoStore[r.photoKeys[0]]}" style="flex-shrink:0;margin-top:2px" onclick="event.stopPropagation();openLightbox(${JSON.stringify(r.photoKeys[0])})">`
-      : '';
+async function saveRecord() {
+  const type = document.querySelector('#addBody .type-btn.sel')?.dataset.type||'plant';
+  const title = document.getElementById('aTitle')?.value.trim();
+  const zone  = document.getElementById('aZone').value;
+  const date  = document.getElementById('aDate').value || today();
+  const comment = document.getElementById('aComment').value.trim();
 
-    if (item.type==='soil') {
-      const soilItemsData = (r.logs&&r.logs[0]&&r.logs[0].soilItems) || r.items || [{type:r.soilType||'不明',amount:r.amount,unit:'kg'}];
-      const summary = soilItemsData.map(i=>`${i.type}${i.amount?' '+i.amount+i.unit:' 適量'}`).join('、');
-      listHtml += `<div class="all-item" onclick="openDetail('soil',${item.idx})">
-        <div class="all-item-icon">🌱</div>
-        <div class="all-item-body">
-          <div class="all-item-title">${summary.length>32?summary.slice(0,32)+'…':summary}</div>
-          <div class="all-item-meta">${r.date} <span class="badge badge-soil">${r.zone}</span>${statusBadge(latestSt)}</div>
-          ${logLabel}
-        </div>${thumb}
-      </div>`;
-    } else if (item.type==='plant') {
-      const bc = TYPE_COLOR[r.type]||'badge-gray';
-      listHtml += `<div class="all-item" onclick="openDetail('plant',${item.idx})">
-        <div class="all-item-icon">🌿</div>
-        <div class="all-item-body">
-          <div class="all-item-title">${r.name}</div>
-          <div class="all-item-meta">${r.plantedDate} <span class="badge badge-soil">${r.zone}</span><span class="badge ${bc}">${r.type}</span>${statusBadge(latestSt)}</div>
-          ${logLabel}
-        </div>${thumb}
-      </div>`;
-    } else if (item.type==='task') {
-      const overdue = !r.done&&r.dueDate&&r.dueDate<today;
-      listHtml += `<div class="all-item" onclick="openDetail('task',${item.idx})">
-        <div class="all-item-icon">${r.done?'✅':'🔲'}</div>
-        <div class="all-item-body">
-          <div class="all-item-title ${r.done?'task-title-text done':''}">${r.title}</div>
-          <div class="all-item-meta ${overdue?'task-overdue':''}">${r.dueDate||'期日なし'} <span class="badge badge-soil">${r.zone}</span>${statusBadge(latestSt)}${overdue?' ⚠ 期限超過':''}</div>
-          ${logLabel}
-        </div>
-      </div>`;
+  if(type!=='soil' && !title){ toast('名前を入力してください'); return; }
+
+  const entry = {
+    id:uid(), date, status:'new', comment,
+    photoIds: addPhotos.map(p=>p.id)
+  };
+  if(type==='soil') entry.materials = getMats('matCont');
+
+  const rec = {
+    id:uid(), type, zoneId:zone,
+    title: title || ('土づくり '+fmtDate(date)),
+    createdAt: date,
+    timeline: [entry]
+  };
+  if(type==='plant') rec.plantType = document.getElementById('aPlantType')?.value;
+  if(type==='task')  { rec.dueDate = document.getElementById('aDue')?.value||''; rec.completed=false; }
+
+  S.records.push(rec);
+  save(); addPhotos=[]; closeSheet('add'); renderTab(); toast('保存しました ✓');
+  if(S.gh.token) syncToGh(true);
+}
+
+// ═══════════════════════════════════════════
+// RECORD DETAIL
+// ═══════════════════════════════════════════
+async function openDetail(id) {
+  curRecId = id;
+  const r = S.records.find(r=>r.id===id); if(!r) return;
+  document.getElementById('detailTitle').textContent = r.title;
+  document.getElementById('detailBody').innerHTML = `<div class="loading"><div class="spinner"></div> 読み込み中...</div>`;
+  openSheet('detail');
+  document.getElementById('detailBody').innerHTML = await buildDetail(r);
+  // photo clicks
+  document.querySelectorAll('#detailBody .tl-photo').forEach(img=>
+    img.addEventListener('click',()=>{ document.getElementById('viewerImg').src=img.src; document.getElementById('imgViewer').style.display='flex'; })
+  );
+  document.getElementById('addTlBtn')?.addEventListener('click',()=>showTlSheet(id));
+  document.getElementById('delRecBtn')?.addEventListener('click',()=>deleteRecord(id));
+}
+
+async function buildDetail(r) {
+  const badges = [
+    `<span class="badge b-${r.type}">${typeLabel(r.type)}</span>`,
+    `<span class="badge" style="background:#e8f5e9;color:#2d6a3f;">🏡 ${esc(zoneName(r.zoneId))}</span>`,
+    r.plantType ? `<span class="badge b-${r.plantType}">${plantLabel(r.plantType)}</span>` : '',
+    r.type==='task'&&r.dueDate ? `<span class="badge ${!r.completed&&isOverdue(r.dueDate)?'b-overdue':''}">期日: ${fmtDate(r.dueDate)}</span>` : '',
+    r.completed ? `<span class="badge b-done">完了</span>` : '',
+  ].filter(Boolean).join(' ');
+
+  let html = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${badges}</div>`;
+  html += `<button class="add-tl-btn" id="addTlBtn">＋ 追記する</button>`;
+  html += `<div class="sec-hdr" style="padding-top:12px;">タイムライン</div>`;
+  html += `<div class="timeline">`;
+
+  for(const entry of [...(r.timeline||[])].reverse()) {
+    let photos = '';
+    if(entry.photoIds?.length) {
+      const imgs = await Promise.all(entry.photoIds.map(async pid=>{
+        const u = await PDB.url(pid);
+        return u ? `<img class="tl-photo" src="${u}" alt="" loading="lazy">` : '';
+      }));
+      photos = `<div class="tl-photos">${imgs.join('')}</div>`;
     }
-  });
-  listHtml += '</div>';
-  el.innerHTML = filterHtml + listHtml;
-}
+    const mats = entry.materials?.length
+      ? `<div class="tl-materials">${entry.materials.map(m=>`<div class="mat-item">• ${esc(m.type)}${m.amount?' '+esc(m.amount)+m.unit:''}</div>`).join('')}</div>` : '';
 
-function setFilterCat(c){filterCat=c;renderAll();}
-function setFilterZone(z){filterZone=z;renderAll();}
-
-// ===================== 土づくりタブ =====================
-function renderSoil() {
-  const el = document.getElementById('tab-soil');
-  const records = state.soilRecords.filter(r=>r.zone===state.activeZone);
-  let html = `<div class="zone-selector">${renderZoneChips()}</div>`;
-  if (!records.length) { el.innerHTML=html+'<p style="text-align:center;padding:40px;color:#aaa;font-size:14px">🌱<br>土の記録がまだありません</p>'; return; }
-  records.sort((a,b)=>b.date.localeCompare(a.date)).forEach(r=>{
-    normPhotos(r); normLogs(r,'soil');
-    const idx = state.soilRecords.indexOf(r);
-    const soilItemsData = (r.logs&&r.logs[0]&&r.logs[0].soilItems)||r.items||[{type:r.soilType||'不明',amount:r.amount,unit:'kg'}];
-    const itemsHtml = soilItemsData.map(i=>`<li>${i.type}${i.amount?' '+i.amount+i.unit:' 適量'}</li>`).join('');
-    const logCount = (r.logs||[]).length;
-    const latestSt = latestStatus(r);
-    html += `<div class="card" style="cursor:pointer" onclick="openDetail('soil',${idx})">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-            <span style="font-size:14px;font-weight:500">${r.date}</span>${statusBadge(latestSt)}
-          </div>
-          <ul class="soil-items-display">${itemsHtml}</ul>
-          ${logCount>1?`<div style="font-size:11px;color:#aaa;margin-top:6px">📝 ${logCount}件の記録</div>`:''}
-        </div>
+    html += `<div class="tl-entry">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-date">${fmtDate(entry.date)} <span class="badge b-${entry.status}" style="margin-left:4px;">${statusLabel(entry.status)}</span></div>
+        ${entry.comment?`<div class="tl-comment">${esc(entry.comment)}</div>`:''}
+        ${mats}${photos}
       </div>
     </div>`;
-  });
-  el.innerHTML = html;
-}
-
-// ===================== 植物タブ =====================
-function renderPlants() {
-  const el = document.getElementById('tab-plants');
-  const plants = state.plants.filter(p=>p.zone===state.activeZone);
-  let html = `<div class="zone-selector">${renderZoneChips()}</div>`;
-  if (!plants.length) { el.innerHTML=html+'<p style="text-align:center;padding:40px;color:#aaa;font-size:14px">🌿<br>植物の記録がまだありません</p>'; return; }
-  plants.forEach(p=>{
-    normPhotos(p); normLogs(p,'plant');
-    const idx = state.plants.indexOf(p);
-    const bc = TYPE_COLOR[p.type]||'badge-gray';
-    const logCount = (p.logs||[]).length;
-    const latestSt = latestStatus(p);
-    const thumb = (p.photoKeys&&p.photoKeys.length&&state.photoStore[p.photoKeys[0]])
-      ? `<img class="photo-thumb" src="${state.photoStore[p.photoKeys[0]]}" onclick="event.stopPropagation();openLightbox(${JSON.stringify(p.photoKeys[0])})" style="flex-shrink:0">`:'';
-    html += `<div class="card" style="cursor:pointer" onclick="openDetail('plant',${idx})">
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        ${thumb}
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
-            <span style="font-size:14px;font-weight:500">${p.name}</span>
-            <span class="badge ${bc}">${p.type}</span>${statusBadge(latestSt)}
-          </div>
-          <div style="font-size:12px;color:#888">${p.plantedDate} · ${p.zone}</div>
-          ${logCount>1?`<div style="font-size:11px;color:#aaa;margin-top:6px">📝 ${logCount}件の記録</div>`:''}
-        </div>
-      </div>
-    </div>`;
-  });
-  el.innerHTML = html;
-}
-
-// ===================== タスクタブ =====================
-function renderTasks() {
-  const el = document.getElementById('tab-tasks');
-  const tasks = [...state.tasks].sort((a,b)=>{
-    if (a.done!==b.done) return a.done?1:-1;
-    return (a.dueDate||'').localeCompare(b.dueDate||'');
-  });
-  if (!tasks.length) { el.innerHTML='<p style="text-align:center;padding:40px;color:#aaa;font-size:14px">✅<br>タスクがまだありません</p>'; return; }
-  const today = new Date().toISOString().slice(0,10);
-  let html = '<div class="card">';
-  tasks.forEach(t=>{
-    normLogs(t,'task');
-    const idx = state.tasks.indexOf(t);
-    const overdue = !t.done&&t.dueDate&&t.dueDate<today;
-    const logCount = (t.logs||[]).length;
-    const latestSt = latestStatus(t);
-    html += `<div class="task-item" onclick="openDetail('task',${idx})">
-      <div class="task-check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask(${idx})">${t.done?'✓':''}</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="font-size:14px;${t.done?'text-decoration:line-through;color:#aaa':''}">${t.title}</span>${statusBadge(latestSt)}
-        </div>
-        <div class="task-meta ${overdue?'task-overdue':''}">${t.zone} · ${t.dueDate||'期日なし'}${overdue?' ⚠ 期限超過':''}</div>
-        ${logCount>1?`<div style="font-size:11px;color:#aaa;margin-top:2px">📝 ${logCount}件の記録</div>`:''}
-      </div>
-    </div>`;
-  });
-  html += '</div>';
-  el.innerHTML = html;
-}
-
-// ===================== まとめタブ =====================
-function renderSummary() {
-  const el = document.getElementById('tab-summary');
-  const pending = state.tasks.filter(t=>!t.done).length;
-  const today = new Date().toISOString().slice(0,10);
-  const overdue = state.tasks.filter(t=>!t.done&&t.dueDate&&t.dueDate<today).length;
-  el.innerHTML = `
-    <div class="stat-row">
-      <div class="stat-card"><div class="stat-num">${state.zones.length}</div><div class="stat-lbl">ゾーン数</div></div>
-      <div class="stat-card"><div class="stat-num">${state.plants.length}</div><div class="stat-lbl">植物の記録</div></div>
-      <div class="stat-card"><div class="stat-num">${state.soilRecords.length}</div><div class="stat-lbl">土の記録</div></div>
-      <div class="stat-card"><div class="stat-num ${overdue>0?'task-overdue':''}">${pending}</div><div class="stat-lbl">未完了タスク${overdue>0?`(${overdue}超過)`:''}</div></div>
-    </div>
-    <div class="card">
-      <div class="section-title">ゾーン別植物数</div>
-      ${state.zones.map(z=>`<div class="record-row"><span>${z}</span><span class="badge badge-green">${state.plants.filter(p=>p.zone===z).length}種</span></div>`).join('')}
-    </div>
-    <div class="card">
-      <div class="section-title">データのバックアップ</div>
-      <p style="font-size:13px;color:#666;margin-bottom:12px">JSONファイルとして書き出し・読み込みができます。</p>
-      <div class="export-row">
-        <button class="btn btn-primary" onclick="exportJSON()" style="flex:1">📥 書き出し</button>
-        <button class="btn" onclick="document.getElementById('json-import').click()" style="flex:1">📤 読み込み</button>
-      </div>
-    </div>`;
-}
-
-// ===================== 詳細モーダル（タイムライン） =====================
-let detailType = '';
-let detailIdx = -1;
-let detailLogPhotoKeys = [];
-let detailLogPhotoPreviewId = '';
-let detailSoilItems = [];
-let editBasicMode = false;
-let editBasicSoilItems = [];
-let editBasicPhotoKeys = [];
-
-function openDetail(type, idx) {
-  detailType = type;
-  detailIdx = idx;
-  detailLogPhotoKeys = [];
-  editBasicMode = false;
-  renderDetail();
-  document.getElementById('detail-overlay').classList.add('open');
-}
-
-function closeDetail() {
-  document.getElementById('detail-overlay').classList.remove('open');
-  detailLogPhotoKeys = [];
-  editBasicMode = false;
-}
-
-function handleDetailOverlayClick(e) {
-  if (e.target === document.getElementById('detail-overlay')) closeDetail();
-}
-
-function renderDetail() {
-  const content = document.getElementById('detail-content');
-  const r = getDetailRecord();
-  if (!r) return;
-  normPhotos(r); normLogs(r, detailType);
-
-  let headerTitle = '';
-  if (detailType==='soil') headerTitle = `🌱 ${r.date} の土づくり`;
-  else if (detailType==='plant') headerTitle = `🌿 ${r.name}`;
-  else headerTitle = `✅ ${r.title}`;
-
-  const basicHtml = editBasicMode ? renderBasicEditForm(r) : renderBasicInfo(r);
-  const timelineHtml = renderTimeline(r);
-  const addLogHtml = renderAddLogForm();
-
-  content.innerHTML = `
-    <div class="detail-header">
-      <span style="font-size:22px">${detailType==='soil'?'🌱':detailType==='plant'?'🌿':'✅'}</span>
-      <span class="detail-header-title">${headerTitle}</span>
-      <button class="btn btn-sm" onclick="closeDetail()">✕</button>
-    </div>
-    <div class="detail-body">
-      ${basicHtml}
-      <div style="font-size:12px;font-weight:600;color:#888;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">記録タイムライン</div>
-      ${timelineHtml}
-      ${addLogHtml}
-      <div style="margin-top:20px;text-align:center">
-        <button class="btn btn-danger" onclick="deleteRecord()">🗑 このレコードを削除</button>
-      </div>
-    </div>`;
-}
-
-function getDetailRecord() {
-  if (detailType==='soil') return state.soilRecords[detailIdx];
-  if (detailType==='plant') return state.plants[detailIdx];
-  if (detailType==='task') return state.tasks[detailIdx];
-  return null;
-}
-
-function renderBasicInfo(r) {
-  let rows = '';
-  if (detailType==='soil') {
-    rows = `<div class="info-row"><span class="info-label">ゾーン</span><span class="info-value">${r.zone}</span></div>
-            <div class="info-row"><span class="info-label">日付</span><span class="info-value">${r.date}</span></div>`;
-  } else if (detailType==='plant') {
-    const bc = TYPE_COLOR[r.type]||'badge-gray';
-    rows = `<div class="info-row"><span class="info-label">ゾーン</span><span class="info-value">${r.zone}</span></div>
-            <div class="info-row"><span class="info-label">種類</span><span class="info-value"><span class="badge ${bc}">${r.type}</span></span></div>
-            <div class="info-row"><span class="info-label">植えた日</span><span class="info-value">${r.plantedDate}</span></div>`;
-  } else if (detailType==='task') {
-    rows = `<div class="info-row"><span class="info-label">ゾーン</span><span class="info-value">${r.zone}</span></div>
-            <div class="info-row"><span class="info-label">期日</span><span class="info-value">${r.dueDate||'未設定'}</span></div>`;
   }
-  return `<div class="info-section">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:12px;font-weight:600;color:#888;letter-spacing:.05em">基本情報</span>
-      <button class="btn btn-sm" onclick="toggleEditBasic()">✏ 編集</button>
-    </div>
-    ${rows}
+  html += `</div>`;
+  html += `<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+    <button class="del-btn" id="delRecBtn">この記録を削除</button>
   </div>`;
-}
-
-function renderBasicEditForm(r) {
-  const zoneOpts = state.zones.map(z=>`<option ${z===r.zone?'selected':''}>${z}</option>`).join('');
-  let fields = '';
-  if (detailType==='soil') {
-    fields = `
-      <div class="form-group"><label class="form-label">ゾーン</label><select id="edit-zone">${zoneOpts}</select></div>
-      <div class="form-group"><label class="form-label">日付</label><input type="date" id="edit-date" value="${r.date}"></div>`;
-  } else if (detailType==='plant') {
-    fields = `
-      <div class="form-group"><label class="form-label">ゾーン</label><select id="edit-zone">${zoneOpts}</select></div>
-      <div class="form-group"><label class="form-label">植物名</label><input type="text" id="edit-name" value="${r.name}"></div>
-      <div class="form-group"><label class="form-label">種類</label>
-        <select id="edit-ptype">${['野菜','花','ハーブ','樹木','その他'].map(t=>`<option ${t===r.type?'selected':''}>${t}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label class="form-label">植えた日</label><input type="date" id="edit-planted" value="${r.plantedDate}"></div>`;
-  } else if (detailType==='task') {
-    fields = `
-      <div class="form-group"><label class="form-label">ゾーン</label><select id="edit-zone">${zoneOpts}</select></div>
-      <div class="form-group"><label class="form-label">タスク名</label><input type="text" id="edit-title" value="${r.title}"></div>
-      <div class="form-group"><label class="form-label">期日</label><input type="date" id="edit-due" value="${r.dueDate||''}"></div>`;
-  }
-  return `<div class="info-section">
-    <div style="font-size:12px;font-weight:600;color:#888;letter-spacing:.05em;margin-bottom:10px">基本情報を編集</div>
-    ${fields}
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn" style="flex:1" onclick="toggleEditBasic()">キャンセル</button>
-      <button class="btn btn-primary" style="flex:1" onclick="saveBasicEdit()">保存</button>
-    </div>
-  </div>`;
-}
-
-function toggleEditBasic() {
-  editBasicMode = !editBasicMode;
-  renderDetail();
-  // スクロールを上に戻す
-  document.getElementById('detail-content').scrollTop = 0;
-}
-
-function saveBasicEdit() {
-  const r = getDetailRecord();
-  if (!r) return;
-  if (detailType==='soil') {
-    r.zone = document.getElementById('edit-zone').value;
-    r.date = document.getElementById('edit-date').value;
-  } else if (detailType==='plant') {
-    r.zone = document.getElementById('edit-zone').value;
-    r.name = document.getElementById('edit-name').value.trim()||r.name;
-    r.type = document.getElementById('edit-ptype').value;
-    r.plantedDate = document.getElementById('edit-planted').value;
-  } else if (detailType==='task') {
-    r.zone = document.getElementById('edit-zone').value;
-    r.title = document.getElementById('edit-title').value.trim()||r.title;
-    r.dueDate = document.getElementById('edit-due').value;
-  }
-  editBasicMode = false;
-  save(); renderDetail(); render();
-}
-
-function renderTimeline(r) {
-  const logs = r.logs || [];
-  if (!logs.length) return '<p style="color:#aaa;font-size:13px;text-align:center;padding:20px">記録がありません</p>';
-
-  let html = '<div class="timeline">';
-  logs.forEach((log, i) => {
-    const isFirst = i === 0;
-    const isLast = i === logs.length - 1;
-    const photos = (log.photoKeys||[]).filter(k=>state.photoStore[k]);
-    const photosHtml = photos.length
-      ? `<div class="photo-row">${photos.map(k=>`<img class="photo-thumb" src="${state.photoStore[k]}" onclick="openLightbox(${JSON.stringify(k)})">`).join('')}</div>`
-      : '';
-    // 土づくりのログには素材リストも
-    let soilItemsHtml = '';
-    if (detailType==='soil' && log.soilItems && log.soilItems.length) {
-      soilItemsHtml = `<ul class="soil-items-display" style="margin-top:6px">${log.soilItems.map(it=>`<li>${it.type}${it.amount?' '+it.amount+it.unit:' 適量'}</li>`).join('')}</ul>`;
-    }
-    html += `<div class="timeline-entry">
-      <div class="timeline-line-wrap">
-        <div class="timeline-dot ${isFirst?'first':''}"></div>
-        ${!isLast?'<div class="timeline-vline"></div>':''}
-      </div>
-      <div class="timeline-content">
-        <div class="timeline-date">
-          <span>${log.date||''}</span>
-          ${statusBadge(log.status)}
-          ${i>0?`<button class="btn-danger" style="margin-left:auto" onclick="deleteLog(${i})">🗑</button>`:''}
-        </div>
-        ${soilItemsHtml}
-        ${log.comment?`<div class="timeline-comment">${log.comment}</div>`:''}
-        ${photosHtml}
-      </div>
-    </div>`;
-  });
-  html += '</div>';
   return html;
 }
 
-function deleteLog(logIdx) {
-  const r = getDetailRecord();
-  if (!r||!r.logs) return;
-  if (r.logs.length <= 1) { alert('最初の記録は削除できません。レコードごと削除する場合は下の削除ボタンをご利用ください。'); return; }
-  if (!confirm('この記録を削除しますか？')) return;
-  r.logs.splice(logIdx, 1);
-  save(); renderDetail(); render();
+function deleteRecord(id) {
+  const r = S.records.find(r=>r.id===id); if(!r) return;
+  if(!confirm(`「${r.title}」を削除しますか？`)) return;
+  S.records = S.records.filter(r=>r.id!==id);
+  save(); closeSheet('detail'); renderTab(); toast('削除しました');
 }
 
-function renderAddLogForm() {
-  const today = new Date().toISOString().slice(0,10);
-  const soilExtra = detailType==='soil' ? `
-    <div class="form-group">
-      <label class="form-label">追加した土・資材（任意）</label>
-      <div id="add-log-soil-items"></div>
-      <button type="button" class="btn btn-sm" style="margin-top:4px" onclick="addLogSoilItem()">＋ 素材を追加</button>
-    </div>` : '';
+// ═══════════════════════════════════════════
+// TIMELINE ENTRY
+// ═══════════════════════════════════════════
+function showTlSheet(recId) {
+  tlPhotos = []; curRecId = recId;
+  const r = S.records.find(r=>r.id===recId);
+  const isSoil = r?.type==='soil';
 
-  return `<div class="add-log-section">
-    <div style="font-size:12px;font-weight:600;color:#888;letter-spacing:.05em;margin-bottom:12px">📝 追記する</div>
-    <div class="form-group"><label class="form-label">日付</label><input type="date" id="log-date" value="${today}"></div>
-    <div class="form-group">
-      <label class="form-label">ステータス</label>
-      <select id="log-status" style="width:auto">
-        ${STATUS_LIST.map(s=>`<option value="${s}" ${s==='追記'?'selected':''}>${s}</option>`).join('')}
+  document.getElementById('tlBody').innerHTML = `
+    <div class="fg">
+      <label class="flabel">日付</label>
+      <input type="date" class="finput" id="tlDate" value="${today()}">
+    </div>
+    <div class="fg">
+      <label class="flabel">ステータス</label>
+      <select class="fselect" id="tlStatus">
+        <option value="update">追記</option>
+        <option value="done">完了</option>
+        <option value="edit">修正</option>
+        <option value="new">新規</option>
       </select>
     </div>
-    ${soilExtra}
-    <div class="form-group"><label class="form-label">コメント・メモ</label>
-      <textarea id="log-comment" placeholder="成長の様子、気づきなど…"></textarea>
+    <div class="fg">
+      <label class="flabel">コメント</label>
+      <textarea class="ftextarea" id="tlComment" placeholder="観察記録、変化など..."></textarea>
     </div>
-    <div class="form-group"><label class="form-label">写真（複数可）</label>
-      <button type="button" class="file-btn" onclick="triggerDetailPhoto('log-photo-preview')">📷 写真を追加</button>
-      <div id="log-photo-preview" style="margin-top:8px"></div>
+    ${isSoil?`
+    <div class="fg">
+      <label class="flabel">使用した資材（任意）</label>
+      <div id="tlMatCont"></div>
+      <button type="button" class="btn-sm" id="tlAddMat">＋ 資材を追加</button>
+    </div>`:''}
+    <div class="fg">
+      <label class="flabel">写真</label>
+      <div class="photo-drop">📷 タップして写真を追加<input type="file" accept="image/*" multiple id="tlPhotoIn"></div>
+      <div class="photo-grid" id="tlPhotoGrid"></div>
     </div>
-    <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="saveLog()">追記を保存</button>
-  </div>`;
-}
+    <button class="btn-p" id="tlSaveBtn">追記を保存</button>
+  `;
 
-// 追記フォーム内の土素材
-let addLogSoilItemsList = [];
-function addLogSoilItem() {
-  addLogSoilItemsList.push({type:'',amount:'',unit:'kg'});
-  renderAddLogSoilItems();
-}
-function renderAddLogSoilItems() {
-  const el = document.getElementById('add-log-soil-items');
-  if (!el) return;
-  el.innerHTML = addLogSoilItemsList.map((item,i)=>`
-    <div class="soil-item-row">
-      <input type="text" placeholder="例: 腐葉土" value="${item.type}" oninput="addLogSoilItemsList[${i}].type=this.value">
-      <input type="number" placeholder="量" min="0" step="0.5" value="${item.amount}" oninput="addLogSoilItemsList[${i}].amount=this.value">
-      <select onchange="addLogSoilItemsList[${i}].unit=this.value">
-        <option ${item.unit==='kg'?'selected':''}>kg</option>
-        <option ${item.unit==='L'?'selected':''}>L</option>
-        <option ${item.unit==='袋'?'selected':''}>袋</option>
-        <option ${item.unit==='適量'?'selected':''}>適量</option>
-      </select>
-      <button class="soil-item-remove" onclick="removeAddLogSoilItem(${i})">×</button>
-    </div>`).join('');
-}
-function removeAddLogSoilItem(i) { addLogSoilItemsList.splice(i,1); renderAddLogSoilItems(); }
-
-function saveLog() {
-  const r = getDetailRecord();
-  if (!r) return;
-  const date = document.getElementById('log-date')?.value;
-  const comment = document.getElementById('log-comment')?.value.trim();
-  const statusEl = document.getElementById('log-status');
-  const status = statusEl ? statusEl.value : '追記';
-
-  const log = { date, status, comment, photoKeys: [...detailLogPhotoKeys] };
-
-  // 土づくりの場合、素材リストも追加
-  if (detailType==='soil' && addLogSoilItemsList.length) {
-    log.soilItems = addLogSoilItemsList.filter(i=>i.type.trim()).map(i=>({
-      type:i.type.trim(), amount:i.amount?parseFloat(i.amount):null, unit:i.unit
-    }));
+  if(isSoil) {
+    const mc = document.getElementById('tlMatCont');
+    addMatRow(mc);
+    document.getElementById('tlAddMat').addEventListener('click',()=>addMatRow(mc));
   }
-
-  if (!r.logs) r.logs = [];
-  r.logs.push(log);
-
-  // 最新ステータスをレコード本体にも反映
-  r.status = status;
-
-  addLogSoilItemsList = [];
-  detailLogPhotoKeys = [];
-  save();
-  renderDetail();
-  render();
-  // タイムラインまでスクロール
-  setTimeout(()=>{
-    const dc = document.getElementById('detail-content');
-    dc.scrollTop = dc.scrollHeight;
-  }, 50);
+  document.getElementById('tlPhotoIn').addEventListener('change', e=>handlePhotos(e,tlPhotos,'tlPhotoGrid'));
+  document.getElementById('tlSaveBtn').addEventListener('click', saveTlEntry);
+  openSheet('tl');
 }
 
-function deleteRecord() {
-  if (!confirm('このレコードをすべての記録ごと削除しますか？')) return;
-  if (detailType==='soil') state.soilRecords.splice(detailIdx,1);
-  else if (detailType==='plant') state.plants.splice(detailIdx,1);
-  else if (detailType==='task') state.tasks.splice(detailIdx,1);
-  save(); closeDetail(); render();
-}
-
-// ===================== 写真ヘルパー =====================
-function triggerDetailPhoto(previewId) {
-  detailLogPhotoPreviewId = previewId;
-  photoPreviewTarget = previewId;
-  document.getElementById('file-input').click();
-}
-
-function triggerPhotoAdd(previewId) {
-  photoPreviewTarget = previewId;
-  document.getElementById('file-input').click();
-}
-
-document.getElementById('file-input').onchange = function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const key = 'photo-'+Date.now();
-    state.photoStore[key] = ev.target.result;
-    // 詳細モーダルの追記フォームか、新規追加モーダルか判定
-    if (photoPreviewTarget === 'log-photo-preview') {
-      detailLogPhotoKeys.push(key);
-      renderDetailPhotoPreview();
-    } else {
-      pendingPhotoKeys.push(key);
-      renderPendingPhotoPreview(photoPreviewTarget);
-    }
+async function saveTlEntry() {
+  const r = S.records.find(r=>r.id===curRecId); if(!r) return;
+  const entry = {
+    id:uid(),
+    date:    document.getElementById('tlDate').value,
+    status:  document.getElementById('tlStatus').value,
+    comment: document.getElementById('tlComment').value.trim(),
+    photoIds: tlPhotos.map(p=>p.id),
   };
-  reader.readAsDataURL(file);
-  this.value='';
-};
-
-function renderDetailPhotoPreview() {
-  const el = document.getElementById('log-photo-preview');
-  if (!el) return;
-  el.innerHTML = detailLogPhotoKeys.length
-    ? `<div class="photo-row">${detailLogPhotoKeys.map((k,i)=>`
-        <div class="photo-thumb-wrap">
-          <img class="photo-thumb" src="${state.photoStore[k]}" onclick="openLightbox(${JSON.stringify(k)})">
-          <button class="photo-thumb-remove" onclick="removeDetailLogPhoto(${i})">×</button>
-        </div>`).join('')}</div>`
-    : '';
-}
-function removeDetailLogPhoto(i) { detailLogPhotoKeys.splice(i,1); renderDetailPhotoPreview(); }
-
-function renderPendingPhotoPreview(containerId) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  el.innerHTML = pendingPhotoKeys.length
-    ? `<div class="photo-row">${pendingPhotoKeys.map((k,i)=>`
-        <div class="photo-thumb-wrap">
-          <img class="photo-thumb" src="${state.photoStore[k]}" onclick="openLightbox(${JSON.stringify(k)})">
-          <button class="photo-thumb-remove" onclick="removePendingPhoto(${i},${JSON.stringify(containerId)})">×</button>
-        </div>`).join('')}</div>`
-    : '';
-}
-function removePendingPhoto(i, cid) { pendingPhotoKeys.splice(i,1); renderPendingPhotoPreview(cid); }
-
-function openLightbox(k) {
-  const src = state.photoStore[k];
-  if (!src) return;
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
-
-// ===================== 新規追加モーダル =====================
-function openAddModal() {
-  if (currentTab==='all'||currentTab==='summary') openCategorySelect();
-  else if (currentTab==='soil') openSoilModal();
-  else if (currentTab==='plants') openPlantModal();
-  else openTaskModal();
+  const mc = document.getElementById('tlMatCont');
+  if(mc) entry.materials = getMats('tlMatCont');
+  if(r.type==='task' && entry.status==='done') r.completed = true;
+  (r.timeline=r.timeline||[]).push(entry);
+  save(); tlPhotos=[]; closeSheet('tl'); toast('追記しました ✓');
+  await openDetail(curRecId);
+  if(S.gh.token) syncToGh(true);
 }
 
-function openCategorySelect() {
-  openModal(`
-    <div class="modal-title">何を追加しますか？</div>
-    <div class="cat-select-grid">
-      <button class="cat-select-btn" onclick="closeModal();openSoilModal()"><span class="cat-icon">🌱</span>土づくり</button>
-      <button class="cat-select-btn" onclick="closeModal();openPlantModal()"><span class="cat-icon">🌿</span>植物</button>
-      <button class="cat-select-btn" onclick="closeModal();openTaskModal()"><span class="cat-icon">✅</span>タスク</button>
-    </div>
-    <button class="btn" onclick="closeModal()" style="width:100%">キャンセル</button>`);
+// ═══════════════════════════════════════════
+// GITHUB SYNC
+// ═══════════════════════════════════════════
+function saveGhSettings() {
+  S.gh = {
+    token: document.getElementById('ghToken').value.trim(),
+    repo:  document.getElementById('ghRepo').value.trim(),
+    path:  document.getElementById('ghPath').value.trim()||'garden-data.json',
+  };
+  localStorage.setItem('garden_gh', JSON.stringify(S.gh));
+  toast('設定を保存しました ✓');
 }
 
-function openModal(html) {
-  document.getElementById('modal-content').innerHTML = html;
-  document.getElementById('modal-overlay').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-  pendingPhotoKeys = []; soilItems = [];
-  document.getElementById('file-input').value='';
-}
-function handleOverlayClick(e) {
-  if (e.target===document.getElementById('modal-overlay')) closeModal();
-}
-
-function statusSelectHtml(def='新規') {
-  return `<select id="f-status" style="width:auto">
-    ${STATUS_LIST.map(s=>`<option value="${s}" ${s===def?'selected':''}>${s}</option>`).join('')}
-  </select>`;
-}
-function getSelectedStatus() {
-  const el = document.getElementById('f-status');
-  return el ? el.value : '新規';
+async function ghAPI(method, body) {
+  const {token,repo,path} = S.gh;
+  if(!token||!repo) { toast('GitHub設定を入力してください'); return null; }
+  const [owner,repoName] = repo.split('/');
+  const url = `https://api.github.com/repos/${owner}/${repoName}/contents/${path}`;
+  const res = await fetch(url, {
+    method,
+    headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if(!res.ok && res.status!==404) throw new Error(`HTTP ${res.status}`);
+  return res.status===404 ? null : res.json();
 }
 
-// ===================== 土づくりモーダル =====================
-function openSoilModal() {
-  soilItems = [{type:'',amount:'',unit:'kg'}];
-  pendingPhotoKeys = [];
-  const today = new Date().toISOString().slice(0,10);
-  openModal(`
-    <div class="modal-title">🌱 土の記録を追加</div>
-    <div class="form-group"><label class="form-label">ゾーン</label>
-      <select id="f-zone">${state.zones.map(z=>`<option ${z===state.activeZone?'selected':''}>${z}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">日付</label><input type="date" id="f-date" value="${today}"></div>
-    <div class="form-group"><label class="form-label">ステータス</label>${statusSelectHtml('新規')}</div>
-    <div class="form-group">
-      <label class="form-label">使用した土・資材</label>
-      <div id="soil-items-list"></div>
-      <button type="button" class="btn btn-sm" style="margin-top:4px" onclick="addSoilItem()">＋ 素材を追加</button>
-    </div>
-    <div class="form-group"><label class="form-label">コメント</label>
-      <textarea id="f-comment" placeholder="pH調整、混合比率など…"></textarea></div>
-    <div class="form-group"><label class="form-label">写真（複数可）</label>
-      <button type="button" class="file-btn" onclick="triggerPhotoAdd('photo-preview')">📷 写真を追加</button>
-      <div id="photo-preview" style="margin-top:8px"></div></div>
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button class="btn" style="flex:1" onclick="closeModal()">キャンセル</button>
-      <button class="btn btn-primary" style="flex:1" onclick="saveSoil()">保存</button></div>`);
-  renderSoilItemsModal();
-}
-
-function renderSoilItemsModal() {
-  const el = document.getElementById('soil-items-list');
-  if (!el) return;
-  el.innerHTML = soilItems.map((item,i)=>`
-    <div class="soil-item-row">
-      <input type="text" placeholder="例: 腐葉土、真砂土…" value="${item.type}" oninput="soilItems[${i}].type=this.value">
-      <input type="number" placeholder="量" min="0" step="0.5" value="${item.amount}" oninput="soilItems[${i}].amount=this.value">
-      <select onchange="soilItems[${i}].unit=this.value">
-        <option ${item.unit==='kg'?'selected':''}>kg</option>
-        <option ${item.unit==='L'?'selected':''}>L</option>
-        <option ${item.unit==='袋'?'selected':''}>袋</option>
-        <option ${item.unit==='適量'?'selected':''}>適量</option>
-      </select>
-      ${soilItems.length>1?`<button class="soil-item-remove" onclick="removeSoilItem(${i})">×</button>`:''}
-    </div>`).join('');
-}
-function addSoilItem(){soilItems.push({type:'',amount:'',unit:'kg'});renderSoilItemsModal();}
-function removeSoilItem(i){soilItems.splice(i,1);renderSoilItemsModal();}
-
-// ===================== 植物モーダル =====================
-function openPlantModal() {
-  pendingPhotoKeys = [];
-  const today = new Date().toISOString().slice(0,10);
-  openModal(`
-    <div class="modal-title">🌿 植物を追加</div>
-    <div class="form-group"><label class="form-label">ゾーン</label>
-      <select id="f-zone">${state.zones.map(z=>`<option ${z===state.activeZone?'selected':''}>${z}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">植物名</label>
-      <input type="text" id="f-name" placeholder="例: ミニトマト、ラベンダー…"></div>
-    <div class="form-group"><label class="form-label">種類</label>
-      <select id="f-ptype"><option>野菜</option><option>花</option><option>ハーブ</option><option>樹木</option><option>その他</option></select></div>
-    <div class="form-group"><label class="form-label">植えた日</label>
-      <input type="date" id="f-planted" value="${today}"></div>
-    <div class="form-group"><label class="form-label">ステータス</label>${statusSelectHtml('新規')}</div>
-    <div class="form-group"><label class="form-label">メモ</label>
-      <textarea id="f-notes" placeholder="水やり頻度、特記事項など…"></textarea></div>
-    <div class="form-group"><label class="form-label">写真（複数可）</label>
-      <button type="button" class="file-btn" onclick="triggerPhotoAdd('photo-preview')">📷 写真を追加</button>
-      <div id="photo-preview" style="margin-top:8px"></div></div>
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button class="btn" style="flex:1" onclick="closeModal()">キャンセル</button>
-      <button class="btn btn-primary" style="flex:1" onclick="savePlant()">保存</button></div>`);
-}
-
-// ===================== タスクモーダル =====================
-function openTaskModal() {
-  const today = new Date().toISOString().slice(0,10);
-  openModal(`
-    <div class="modal-title">✅ タスクを追加</div>
-    <div class="form-group"><label class="form-label">ゾーン</label>
-      <select id="f-zone">${state.zones.map(z=>`<option ${z===state.activeZone?'selected':''}>${z}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">タスク名</label>
-      <input type="text" id="f-title" placeholder="例: 追肥、水やり、剪定…"></div>
-    <div class="form-group"><label class="form-label">期日</label>
-      <input type="date" id="f-due" value="${today}"></div>
-    <div class="form-group"><label class="form-label">ステータス</label>${statusSelectHtml('新規')}</div>
-    <div class="form-group"><label class="form-label">メモ</label>
-      <textarea id="f-notes" placeholder="詳細など…"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button class="btn" style="flex:1" onclick="closeModal()">キャンセル</button>
-      <button class="btn btn-primary" style="flex:1" onclick="saveTask()">保存</button></div>`);
-}
-
-// ===================== ゾーン管理 =====================
-function openZoneManager() {
-  openModal(`
-    <div class="modal-title">⚙ ゾーン管理</div>
-    <div id="zone-list">${state.zones.map((z,i)=>`<div class="record-row"><span>${z}</span>${state.zones.length>1?`<button class="btn-danger" onclick="deleteZone(${i})">🗑</button>`:''}</div>`).join('')}</div>
-    <div style="margin-top:12px;display:flex;gap:8px">
-      <input type="text" id="new-zone" placeholder="新しいゾーン名" style="flex:1">
-      <button class="btn btn-primary" onclick="addZone()">＋</button></div>
-    <div style="margin-top:16px"><button class="btn" onclick="closeModal()" style="width:100%">閉じる</button></div>`);
-}
-function addZone(){const n=document.getElementById('new-zone').value.trim();if(!n||state.zones.includes(n))return;state.zones.push(n);save();openZoneManager();}
-function deleteZone(i){if(state.zones.length<=1)return;const z=state.zones[i];state.zones.splice(i,1);if(state.activeZone===z)state.activeZone=state.zones[0];save();openZoneManager();}
-
-// ===================== 保存 =====================
-function saveSoil() {
+async function syncToGh(silent=false) {
+  if(!S.gh.token||!S.gh.repo) { if(!silent) toast('GitHub設定を入力してください'); return; }
+  if(!silent) document.getElementById('syncStatus').textContent = '同期中...';
   try {
-    const items = soilItems.filter(i=>i.type.trim());
-    if (!items.length) { alert('土・資材を1つ以上入力してください'); return; }
-    const zone = document.getElementById('f-zone').value;
-    const date = document.getElementById('f-date').value;
-    const status = getSelectedStatus();
-    const comment = document.getElementById('f-comment').value.trim();
-    const mappedItems = items.map(i=>({type:i.type.trim(),amount:i.amount?parseFloat(i.amount):null,unit:i.unit}));
-    const record = {
-      zone, date, status,
-      items: mappedItems,
-      comment,
-      photoKeys: [...pendingPhotoKeys],
-      logs: [{ date, status, comment, photoKeys: [...pendingPhotoKeys], soilItems: mappedItems }]
-    };
-    state.soilRecords.push(record);
-    save(); closeModal(); render();
-  } catch(e) { alert('保存エラー: ' + e.message); }
+    const existing = await ghAPI('GET');
+    const sha = existing?.sha;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify({zones:S.zones,records:S.records,updatedAt:new Date().toISOString()},null,2))));
+    await ghAPI('PUT', {message:`庭DIY sync ${new Date().toLocaleString('ja-JP')}`,content,...(sha?{sha}:{})});
+    const t = new Date().toLocaleTimeString('ja-JP');
+    document.getElementById('syncStatus').textContent = `最終同期: ${t}`;
+    if(!silent) toast('同期しました ✓');
+  } catch(e) {
+    document.getElementById('syncStatus').textContent = `エラー: ${e.message}`;
+    if(!silent) toast('同期に失敗しました');
+  }
 }
 
-function savePlant() {
+async function syncFromGh() {
+  if(!S.gh.token||!S.gh.repo) { toast('GitHub設定を入力してください'); return; }
+  document.getElementById('syncStatus').textContent = '取得中...';
   try {
-    const nameEl = document.getElementById('f-name');
-    const name = nameEl ? nameEl.value.trim() : '';
-    if (!name) { alert('植物名を入力してください'); return; }
-    const zone = document.getElementById('f-zone').value;
-    const type = document.getElementById('f-ptype').value;
-    const plantedDate = document.getElementById('f-planted').value;
-    const status = getSelectedStatus();
-    const notes = document.getElementById('f-notes').value.trim();
-    const record = {
-      zone, name, type, plantedDate, status, notes,
-      photoKeys: [...pendingPhotoKeys],
-      logs: [{ date: plantedDate, status, comment: notes, photoKeys: [...pendingPhotoKeys] }]
-    };
-    state.plants.push(record);
-    save(); closeModal(); render();
-  } catch(e) { alert('保存エラー: ' + e.message); }
+    const data = await ghAPI('GET');
+    if(!data) { toast('リモートにデータがありません'); return; }
+    const remote = JSON.parse(atob(data.content.replace(/\n/g,'')));
+    // Merge: add records/zones not locally present
+    const localIds = new Set(S.records.map(r=>r.id));
+    (remote.records||[]).forEach(r=>{ if(!localIds.has(r.id)) S.records.push(r); });
+    const localZIds = new Set(S.zones.map(z=>z.id));
+    (remote.zones||[]).forEach(z=>{ if(!localZIds.has(z.id)) S.zones.push(z); });
+    save(); renderTab();
+    const t = new Date().toLocaleTimeString('ja-JP');
+    document.getElementById('syncStatus').textContent = `取得完了: ${t}`;
+    toast('データを取得しました ✓');
+  } catch(e) {
+    document.getElementById('syncStatus').textContent = `エラー: ${e.message}`;
+    toast('取得に失敗しました');
+  }
 }
 
-function saveTask() {
-  try {
-    const titleEl = document.getElementById('f-title');
-    const title = titleEl ? titleEl.value.trim() : '';
-    if (!title) { alert('タスク名を入力してください'); return; }
-    const zone = document.getElementById('f-zone').value;
-    const dueDate = document.getElementById('f-due').value;
-    const status = getSelectedStatus();
-    const notes = document.getElementById('f-notes').value.trim();
-    const record = {
-      zone, title, dueDate, status, notes,
-      done: false,
-      logs: [{ date: dueDate || new Date().toISOString().slice(0,10), status, comment: notes, photoKeys: [] }]
-    };
-    state.tasks.push(record);
-    save(); closeModal(); render();
-  } catch(e) { alert('保存エラー: ' + e.message); }
-}
-
-function toggleTask(i) {
-  state.tasks[i].done = !state.tasks[i].done;
-  save(); render();
-}
-
-// ===================== バックアップ =====================
+// ═══════════════════════════════════════════
+// BACKUP
+// ═══════════════════════════════════════════
 function exportJSON() {
-  const data = JSON.parse(JSON.stringify(state));
-  delete data.photoStore;
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url = URL.createObjectURL(blob);
+  const blob = new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),zones:S.zones,records:S.records},null,2)],{type:'application/json'});
   const a = document.createElement('a');
-  a.href=url; a.download=`garden_backup_${new Date().toISOString().slice(0,10)}.json`;
-  a.click(); URL.revokeObjectURL(url);
+  a.href = URL.createObjectURL(blob);
+  a.download = `garden-backup-${today()}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('エクスポートしました ✓');
 }
+
 function importJSON(e) {
-  const file = e.target.files[0]; if(!file)return;
+  const file = e.target.files[0]; if(!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      const imp = JSON.parse(ev.target.result);
-      if (!imp.zones||!imp.soilRecords){alert('正しいバックアップファイルではありません。');return;}
-      if (confirm('現在のデータを上書きして読み込みますか？\n※写真データは別途保存されません。')) {
-        imp.photoStore=state.photoStore; state=imp; save(); render();
-        alert('読み込みが完了しました。');
-      }
-    } catch(err){alert('ファイルの読み込みに失敗しました。');}
+      const data = JSON.parse(ev.target.result);
+      if(!data.records) throw new Error('invalid');
+      if(!confirm(`インポートしますか？\n既存データは保持され、新しいデータが追加されます。`)) return;
+      const localIds = new Set(S.records.map(r=>r.id));
+      let added = 0;
+      (data.records||[]).forEach(r=>{ if(!localIds.has(r.id)){ S.records.push(r); added++; } });
+      const localZIds = new Set(S.zones.map(z=>z.id));
+      (data.zones||[]).forEach(z=>{ if(!localZIds.has(z.id)) S.zones.push(z); });
+      save(); renderTab(); toast(`${added}件インポートしました ✓`);
+    } catch { toast('インポートに失敗しました'); }
   };
-  reader.readAsText(file); e.target.value='';
+  reader.readAsText(file);
+  e.target.value='';
 }
 
-render();
+// ═══════════════════════════════════════════
+// IMAGE VIEWER
+// ═══════════════════════════════════════════
+function closeViewer() {
+  document.getElementById('imgViewer').style.display='none';
+  document.getElementById('viewerImg').src='';
+}
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('/garden/sw.js').catch(()=>{});
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+async function init() {
+  await PDB.open();
+  load();
+
+  document.querySelectorAll('.tab-item').forEach(el=>
+    el.addEventListener('click',()=>switchTab(el.dataset.tab))
+  );
+  document.getElementById('fabBtn').addEventListener('click',()=>showAddSheet());
+  document.getElementById('syncBtn').addEventListener('click',()=>{
+    if(S.gh.token&&S.gh.repo) syncFromGh();
+    else { switchTab('summary'); toast('まとめタブでGitHub設定を行ってください'); }
   });
+  document.getElementById('filterType').addEventListener('change',renderAll);
+  document.getElementById('filterZone').addEventListener('change',renderAll);
+
+  // overlay clicks close sheets
+  [['add','addOverlay'],['detail','detailOverlay'],['tl','tlOverlay'],['zone','zoneOverlay']].forEach(([n,oid])=>{
+    document.getElementById(oid).addEventListener('click',()=>closeSheet(n));
+  });
+
+  renderAll();
+
+  if(S.gh.token&&S.gh.repo) syncFromGh();
+
+  if('serviceWorker' in navigator)
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
+
+init();
 </script>
 </body>
 </html>
