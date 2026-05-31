@@ -1,4 +1,4 @@
-const CACHE_NAME = 'garden-diy-v1';
+const CACHE_NAME = 'garden-diy-v2';
 const ASSETS = [
   '/garden/',
   '/garden/index.html',
